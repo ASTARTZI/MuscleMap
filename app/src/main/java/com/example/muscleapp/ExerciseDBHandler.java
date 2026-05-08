@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ExerciseDBHandler extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 8; // Bumped version to refresh DB with new exercises
+    private static final int DATABASE_VERSION = 12; // Incremented to prevent downgrade crashes after rollback
     private static final String DATABASE_NAME = "exerciseDB.db";
     public static final String TABLE_EXERCISES = "exercises";
     public static final String COLUMN_ID = "_id";
