@@ -10,6 +10,8 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -31,6 +33,18 @@ public class MainActivity extends AppCompatActivity {
         setupButton(R.id.shoulders_button, "shoulders");
         setupButton(R.id.back_button, "back");
         setupButton(R.id.abs_button, "abs");
+
+        // Logout button
+        Button logoutBtn = findViewById(R.id.logout_button);
+        if (logoutBtn != null) {
+            logoutBtn.setOnClickListener(v -> {
+                FirebaseAuth.getInstance().signOut();
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                finish();
+            });
+        }
     }
 
     private void setupButton(int buttonId, final String muscleGroup) {
