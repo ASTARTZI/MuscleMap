@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "329756039119",
+    "project_id": "muscle-map-2afb4",
+    "storage_bucket": "muscle-map-2afb4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:329756039119:android:1282e6556396543e1524ba",
+        "android_client_info": {
+          "package_name": "com.example.muscleapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAiQmkEhk5F_sfvbmYFSWt4CmFHY8_CKvs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

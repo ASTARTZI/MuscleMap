@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">MuscleApp</string>
+    <string name="chest_button">CHEST</string>
+    <string name="arm_button">ARM</string>
+    <string name="legs_button">LEGS</string>
+    <string name="abs_button">ABS</string>
+    <string name="back_button">BACK</string>
+    <string name="shoulders_button">SHOULDERS</string>
+    <string name="exercise_image">Content Description?</string>
+    <string name="exercise_title">Exercise Title</string>
+</resources>
