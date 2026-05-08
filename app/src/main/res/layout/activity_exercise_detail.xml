@@ -18,6 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="300dp"
             android:scaleType="centerInside"
+            android:background="@android:color/white"
             android:layout_marginBottom="16dp"
             tools:src="@drawable/ic_placeholder" />
 
@@ -28,6 +29,7 @@
             android:textSize="24sp"
             android:textStyle="bold"
             android:textColor="@color/white"
+            android:gravity="center"
             android:layout_marginBottom="8dp"
             tools:text="Exercise Name" />
 
@@ -37,6 +39,7 @@
             android:layout_height="wrap_content"
             android:textSize="16sp"
             android:textColor="@android:color/darker_gray"
+            android:gravity="center"
             android:layout_marginBottom="16dp"
             tools:text="Muscle Group: Chest" />
 
@@ -45,7 +48,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="16sp"
-            android:textColor="@color/black"
+            android:textColor="@color/white"
             tools:text="Detailed description of the exercise goes here." />
 
     </LinearLayout>
