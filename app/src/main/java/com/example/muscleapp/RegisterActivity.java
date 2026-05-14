@@ -9,7 +9,9 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.graphics.Insets;
+import androidx.core.os.LocaleListCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
@@ -35,6 +37,13 @@ public class RegisterActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        // Setup language buttons
+        View btnEn = findViewById(R.id.btn_en);
+        View btnEl = findViewById(R.id.btn_el);
+        if (btnEn != null) btnEn.setOnClickListener(v -> setLocale("en"));
+        if (btnEl != null) btnEl.setOnClickListener(v -> setLocale("el"));
+
         emailET=findViewById(R.id.emailET);
         passwordET=findViewById(R.id.passwordET);
         registerbtn=findViewById(R.id.registerbtn);
@@ -56,6 +65,12 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void setLocale(String lang) {
+        LocaleListCompat appLocales = LocaleListCompat.forLanguageTags(lang);
+        AppCompatDelegate.setApplicationLocales(appLocales);
+    }
+
     public void registerButtonClicked(){
         String email=emailET.getText().toString();
         String password=passwordET.getText().toString();

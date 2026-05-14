@@ -2,11 +2,14 @@ package com.example.muscleapp;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.graphics.Insets;
+import androidx.core.os.LocaleListCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
@@ -25,6 +28,12 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        // Setup language buttons
+        View btnEn = findViewById(R.id.btn_en);
+        View btnEl = findViewById(R.id.btn_el);
+        if (btnEn != null) btnEn.setOnClickListener(v -> setLocale("en"));
+        if (btnEl != null) btnEl.setOnClickListener(v -> setLocale("el"));
 
         // Setup button listeners
         setupButton(R.id.chest_button, "chest");
@@ -45,6 +54,11 @@ public class MainActivity extends AppCompatActivity {
                 finish();
             });
         }
+    }
+
+    private void setLocale(String lang) {
+        LocaleListCompat appLocales = LocaleListCompat.forLanguageTags(lang);
+        AppCompatDelegate.setApplicationLocales(appLocales);
     }
 
     private void setupButton(int buttonId, final String muscleGroup) {

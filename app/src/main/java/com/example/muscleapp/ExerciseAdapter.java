@@ -38,10 +38,11 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.ViewHo
         int resId = context.getResources().getIdentifier(exercise.getImageName(), "drawable", context.getPackageName());
         
         if (resId != 0) {
-            // Use Glide to load the image/GIF
+            // Use Glide to load the image/GIF and ensure it zooms/fills correctly
             Glide.with(context)
                 .load(resId)
                 .placeholder(R.drawable.ic_placeholder)
+                .fitCenter() // Changed from centerCrop to avoid head cropping
                 .into(holder.imageView);
         } else {
             holder.imageView.setImageResource(R.drawable.ic_placeholder);

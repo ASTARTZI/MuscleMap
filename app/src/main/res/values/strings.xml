@@ -6,6 +6,23 @@
     <string name="abs_button">ABS</string>
     <string name="back_button">BACK</string>
     <string name="shoulders_button">SHOULDERS</string>
-    <string name="exercise_image">Content Description?</string>
+    <string name="exercise_image">Exercise Image</string>
     <string name="exercise_title">Exercise Title</string>
+    <string name="logout">Logout</string>
+    <string name="login">Log in</string>
+    <string name="register">Register</string>
+    <string name="welcome">Welcome</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="email_hint">Email</string>
+    <string name="password_hint">Password</string>
+    <string name="footer_text">MuscleMap App | Mobile Applications Development Project 2026 ©</string>
+    <string name="muscle_group_prefix">Muscle Group: </string>
+    <string name="chest">Chest</string>
+    <string name="arm">Arms</string>
+    <string name="legs">Legs</string>
+    <string name="shoulders">Shoulders</string>
+    <string name="back">Back</string>
+    <string name="abs">Abs</string>
+    <string name="lang_en">EN</string>
+    <string name="lang_el">EL</string>
 </resources>

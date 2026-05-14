@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ExerciseDBHandler extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 12; // Incremented to prevent downgrade crashes after rollback
+    private static final int DATABASE_VERSION = 22;
     private static final String DATABASE_NAME = "exerciseDB.db";
     public static final String TABLE_EXERCISES = "exercises";
     public static final String COLUMN_ID = "_id";
@@ -17,6 +17,7 @@ public class ExerciseDBHandler extends SQLiteOpenHelper {
     public static final String COLUMN_DESCRIPTION = "description";
     public static final String COLUMN_MUSCLE_GROUP = "muscle_group";
     public static final String COLUMN_IMAGE_NAME = "image_name";
+    public static final String COLUMN_LANGUAGE = "language";
 
     public ExerciseDBHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -29,7 +30,8 @@ public class ExerciseDBHandler extends SQLiteOpenHelper {
                 + COLUMN_TITLE + " TEXT,"
                 + COLUMN_DESCRIPTION + " TEXT,"
                 + COLUMN_MUSCLE_GROUP + " TEXT,"
-                + COLUMN_IMAGE_NAME + " TEXT" + ")";
+                + COLUMN_IMAGE_NAME + " TEXT,"
+                + COLUMN_LANGUAGE + " TEXT" + ")";
         db.execSQL(CREATE_TABLE);
         insertDefaultExercises(db);
     }
@@ -40,22 +42,17 @@ public class ExerciseDBHandler extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public void addExercise(Exercise exercise) {
-        ContentValues values = new ContentValues();
-        values.put(COLUMN_TITLE, exercise.getTitle());
-        values.put(COLUMN_DESCRIPTION, exercise.getDescription());
-        values.put(COLUMN_MUSCLE_GROUP, exercise.getMuscleGroup());
-        values.put(COLUMN_IMAGE_NAME, exercise.getImageName());
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.insert(TABLE_EXERCISES, null, values);
-        db.close();
+    @Override
+    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        onUpgrade(db, oldVersion, newVersion);
     }
 
-    public List<Exercise> getExercisesByMuscleGroup(String muscleGroup) {
+    public List<Exercise> getExercisesByMuscleGroup(String muscleGroup, String lang) {
         List<Exercise> list = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_EXERCISES, null,
-                COLUMN_MUSCLE_GROUP + " = ?", new String[]{muscleGroup},
+                COLUMN_MUSCLE_GROUP + " = ? AND " + COLUMN_LANGUAGE + " = ?", 
+                new String[]{muscleGroup, lang},
                 null, null, null);
 
         if (cursor.moveToFirst()) {
@@ -75,178 +72,73 @@ public class ExerciseDBHandler extends SQLiteOpenHelper {
         return list;
     }
 
+    public Exercise getExerciseByImageName(String imageName, String lang) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_EXERCISES, null,
+                COLUMN_IMAGE_NAME + " = ? AND " + COLUMN_LANGUAGE + " = ?",
+                new String[]{imageName, lang},
+                null, null, null);
+
+        Exercise exercise = null;
+        if (cursor.moveToFirst()) {
+            exercise = new Exercise(
+                    cursor.getInt(0),
+                    cursor.getString(1),
+                    cursor.getString(2),
+                    cursor.getString(3),
+                    cursor.getString(4)
+            );
+        }
+        cursor.close();
+        db.close();
+        return exercise;
+    }
+
     private void insertDefaultExercises(SQLiteDatabase db) {
+        insertEnglishExercises(db);
+        insertGreekExercises(db);
+    }
 
-        // Chest
-        addExerciseInternal(db, "Incline Bench Press",
-                "The Incline Bench Press mainly targets the upper chest while also engaging the shoulders and triceps.\n" +
-                        "Adjust the bench to an incline of about 30 to 45 degrees for better upper chest activation.\n" +
-                        "Keep your feet flat on the floor and maintain a stable body position throughout the exercise.\n" +
-                        "Lower the bar slowly toward the upper chest area with control and proper alignment.\n" +
-                        "Avoid bouncing the bar or locking the elbows aggressively at the top of the movement.\n" +
-                        "Keep your wrists straight to reduce unnecessary strain on the joints.\n" +
-                        "Breathe correctly by inhaling as you lower the weight and exhaling as you press upward.\n" +
-                        "Do not use too much weight, because poor form can increase shoulder injury risk.\n" +
-                        "Keep your shoulder blades retracted to improve stability and chest activation.",
-                "chest", "incline_bench_press");
+    private void insertEnglishExercises(SQLiteDatabase db) {
+        addExerciseInternal(db, "Incline Bench Press", "The Incline Bench Press targets the upper chest.\nAdjust the bench to 30-45 degrees.\nKeep your feet flat on the floor.\nLower the bar slowly to the upper chest.\nAvoid bouncing the bar.\nKeep your wrists straight.\nBreathe correctly.\nDo not use too much weight.\nKeep shoulder blades retracted.", "chest", "incline_bench_press", "en");
+        addExerciseInternal(db, "Flat Bench Press", "The Flat Bench Press builds overall chest strength.\nTargets pectorals, triceps and front shoulders.\nLie flat on the bench.\nLower the bar to the middle of your chest.\nAvoid flaring your elbows.\nPush the bar upward smoothly.\nMaintain a natural arch in your back.\nUse a spotter for heavy weights.\nFocus on correct technique.", "chest", "flat_bench_press", "en");
+        addExerciseInternal(db, "Chest Fly", "The Chest Fly is an isolation exercise for the chest.\nKeep a slight bend in your elbows.\nOpen your arms until you feel a stretch.\nAvoid lowering weights too far.\nBring weights together by squeezing the chest.\nDo not turn it into a press.\nUse lighter weights.\nKeep your posture stable.\nBreathe properly.", "chest", "chest_fly", "en");
+        addExerciseInternal(db, "Bicep Curl", "The Bicep Curl strengthens the biceps.\nStand upright with elbows close to torso.\nCurl the weight while keeping upper arms still.\nAvoid swinging your body.\nSqueeze biceps at the top.\nLower the weight slowly.\nKeep wrists neutral.\nUse a full range of motion.\nControlled reps are key.", "arm", "bicep_curl", "en");
+        addExerciseInternal(db, "Tricep Dips", "Tricep Dips target the triceps.\nCan be done on parallel bars or a bench.\nKeep chest lifted and elbows back.\nLower your body until elbows reach 90 degrees.\nAvoid going too low.\nPush yourself up using your triceps.\nStay upright for tricep focus.\nBeginners can use assistance.\nMove slowly.", "arm", "tricep_dips", "en");
+        addExerciseInternal(db, "Squats", "Squats target quads, glutes, and hamstrings.\nStand with feet shoulder-width apart.\nLower your hips back and down.\nKeep knees aligned with toes.\nAvoid letting knees collapse.\nKeep spine neutral and core tight.\nPush through heels to stand up.\nDo not lean too far forward.\nWarm up properly.", "legs", "squats", "en");
+        addExerciseInternal(db, "Leg Press", "Leg Press strengthens legs safely.\nTargets quads, glutes, and hamstrings.\nSit firmly with feet on the platform.\nLower platform slowly to 90 degrees.\nAvoid bringing knees too close to chest.\nPush platform up through your heels.\nKeep lower back pressed against seat.\nUse controlled motion.\nIncrease weight gradually.", "legs", "leg_press", "en");
+        addExerciseInternal(db, "Overhead Press", "Overhead Press builds shoulder strength.\nTargets deltoids, triceps and core.\nStand with feet shoulder-width apart.\nPress weight overhead in a straight path.\nAvoid excessive back arching.\nLower weight slowly to shoulders.\nKeep core tight.\nStart with manageable weight.\nBreathe steadily.", "shoulders", "overhead_press", "en");
+        addExerciseInternal(db, "Lateral Raise", "Lateral Raise targets the side deltoids.\nHelps develop shoulder width.\nHold dumbbells at your sides.\nRaise arms outward to shoulder height.\nAvoid lifting too high.\nDo not swing your body.\nLower weights slowly.\nUse lighter weights for form.\nKeep shoulders relaxed.", "shoulders", "lateral_raise", "en");
+        addExerciseInternal(db, "Pull Ups", "Pull Ups strengthen the back and arms.\nTarget lats, biceps and upper back.\nGrip bar wider than shoulders.\nPull body up until chin passes bar.\nAvoid swinging.\nLower yourself slowly.\nKeep core engaged.\nBeginners can use bands.\nFocus on shoulder position.", "back", "pull_ups", "en");
+        addExerciseInternal(db, "Deadlift", "Deadlift builds total body strength.\nTargets back, glutes, and hamstrings.\nStand with feet hip-width apart.\nMaintain a neutral spine.\nLift weight by driving through legs.\nAvoid rounding your back.\nStand tall at the top.\nLower the bar with control.\nPrioritize technique.", "back", "deadlift", "en");
+        addExerciseInternal(db, "Crunches", "Crunches strengthen the core.\nLie on your back with knees bent.\nPlace hands behind head lightly.\nLift shoulders slightly off floor.\nAvoid pulling your neck.\nMove slowly and avoid momentum.\nExhale as you crunch up.\nKeep lower back stable.\nQuality over speed.", "abs", "crunches", "en");
+        addExerciseInternal(db, "Plank", "Plank is an isometric core exercise.\nEngages abs, shoulders, and glutes.\nPlace forearms on floor, body straight.\nEngage abs and glutes.\nAvoid letting hips sag or rise.\nKeep neck neutral.\nBreathe steadily.\nStart with shorter holds.\nForm is most important.", "abs", "plank", "en");
+    }
 
-        addExerciseInternal(db, "Flat Bench Press",
-                "The Flat Bench Press is a compound exercise used to build chest strength and muscle mass.\n" +
-                        "It mainly targets the pectoral muscles while also working the triceps and front shoulders.\n" +
-                        "Lie flat on the bench with your eyes under the bar and your feet firmly on the floor.\n" +
-                        "Lower the bar in a controlled way toward the middle of your chest.\n" +
-                        "Avoid flaring your elbows too much, because this can place extra stress on the shoulders.\n" +
-                        "Push the bar upward smoothly while keeping your body tight and stable.\n" +
-                        "Maintain a natural arch in your back and keep your shoulder blades pulled back.\n" +
-                        "Use a spotter when lifting heavy weights to improve safety.\n" +
-                        "Focus on correct technique before trying to lift heavier weights.",
-                "chest", "flat_bench_press");
-
-        addExerciseInternal(db, "Chest Fly",
-                "The Chest Fly is an isolation exercise that focuses mainly on the chest muscles.\n" +
-                        "It can be performed with dumbbells or cables depending on the available equipment.\n" +
-                        "Keep a slight bend in your elbows throughout the movement to protect the joints.\n" +
-                        "Open your arms slowly until you feel a controlled stretch across the chest.\n" +
-                        "Avoid lowering the weights too far, because this can stress the shoulders.\n" +
-                        "Bring the weights back together by squeezing the chest muscles at the top.\n" +
-                        "Do not turn the movement into a press by bending your elbows too much.\n" +
-                        "Use lighter weights and controlled motion for better muscle activation.\n" +
-                        "Keep your posture stable and breathe properly during each repetition.",
-                "chest", "chest_fly");
-
-        // Arms
-        addExerciseInternal(db, "Bicep Curl",
-                "The Bicep Curl is an isolation exercise that strengthens and develops the biceps.\n" +
-                        "Stand upright with your elbows close to your torso throughout the movement.\n" +
-                        "Curl the weight upward while keeping your upper arms mostly still.\n" +
-                        "Avoid swinging your body or using momentum to lift the weight.\n" +
-                        "Squeeze the biceps briefly at the top of the movement for better activation.\n" +
-                        "Lower the weight slowly to keep tension on the muscle and improve control.\n" +
-                        "Keep your wrists neutral to avoid unnecessary joint strain.\n" +
-                        "Choose a weight that allows a full range of motion with proper form.\n" +
-                        "Controlled repetitions are more effective than fast and careless movement.",
-                "arm", "bicep_curl");
-
-        addExerciseInternal(db, "Tricep Dips",
-                "Tricep Dips are a bodyweight exercise that mainly targets the triceps.\n" +
-                        "They can be performed on parallel bars, a bench, or a dip station.\n" +
-                        "Keep your chest lifted and your elbows pointing backward during the movement.\n" +
-                        "Lower your body slowly until your elbows reach about a 90 degree angle.\n" +
-                        "Avoid going too low, because this may place extra stress on the shoulders.\n" +
-                        "Push yourself back up by using your triceps while keeping control.\n" +
-                        "Stay more upright if you want to focus more on the triceps than the chest.\n" +
-                        "Beginners can use assisted variations to build strength safely.\n" +
-                        "Move slowly and avoid bouncing at the bottom of the exercise.",
-                "arm", "tricep_dips");
-
-        // Legs
-        addExerciseInternal(db, "Squats",
-                "Squats are a compound lower body exercise that builds strength and stability.\n" +
-                        "They mainly target the quadriceps, glutes, and hamstrings while also engaging the core.\n" +
-                        "Stand with your feet about shoulder-width apart and keep your chest upright.\n" +
-                        "Lower your hips back and down while keeping your knees aligned with your toes.\n" +
-                        "Avoid letting your knees collapse inward during the movement.\n" +
-                        "Keep your spine neutral and your core engaged throughout the exercise.\n" +
-                        "Push through your heels to return to the standing position with control.\n" +
-                        "Do not lean too far forward, because this can stress the lower back.\n" +
-                        "Use proper warm-up and correct form before increasing the weight.",
-                "legs", "squats");
-
-        addExerciseInternal(db, "Leg Press",
-                "The Leg Press is a machine exercise used to strengthen the legs safely and effectively.\n" +
-                        "It mainly targets the quadriceps, glutes, and hamstrings depending on foot placement.\n" +
-                        "Sit firmly against the backrest with your feet shoulder-width apart on the platform.\n" +
-                        "Lower the platform slowly until your knees form about a 90 degree angle.\n" +
-                        "Avoid bringing your knees too close to your chest to protect your lower back.\n" +
-                        "Push the platform upward through your heels without fully locking your knees.\n" +
-                        "Keep your lower back pressed against the seat during the whole movement.\n" +
-                        "Use controlled motion instead of bouncing or relying on momentum.\n" +
-                        "Increase the weight gradually only when your technique remains stable.",
-                "legs", "leg_press");
-
-        // Shoulders
-        addExerciseInternal(db, "Overhead Press",
-                "The Overhead Press is a compound exercise for building shoulder and upper body strength.\n" +
-                        "It mainly targets the deltoids while also engaging the triceps and core muscles.\n" +
-                        "Stand with your feet shoulder-width apart to create a stable base.\n" +
-                        "Press the weight overhead in a straight path while keeping your spine neutral.\n" +
-                        "Avoid excessive arching of the lower back during the lift.\n" +
-                        "Lower the weight slowly back to shoulder level with full control.\n" +
-                        "Keep your core tight to improve balance and protect your spine.\n" +
-                        "Start with manageable weight until you learn the correct technique.\n" +
-                        "Use steady breathing and proper posture during every repetition.",
-                "shoulders", "overhead_press");
-
-        addExerciseInternal(db, "Lateral Raise",
-                "The Lateral Raise is an isolation exercise that targets the side deltoids.\n" +
-                        "It helps develop shoulder width and improves upper body appearance.\n" +
-                        "Hold the dumbbells at your sides with a slight bend in your elbows.\n" +
-                        "Raise your arms outward until they reach about shoulder height.\n" +
-                        "Avoid lifting the weights too high, because this can reduce shoulder efficiency.\n" +
-                        "Do not swing your body or use momentum to raise the dumbbells.\n" +
-                        "Lower the weights slowly to keep tension on the shoulder muscles.\n" +
-                        "Use lighter weights if needed to maintain strict and controlled form.\n" +
-                        "Keep your shoulders relaxed and avoid shrugging during the movement.",
-                "shoulders", "lateral_raise");
-
-        // Back
-        addExerciseInternal(db, "Pull Ups",
-                "Pull Ups are a challenging bodyweight exercise that strengthens the back and arms.\n" +
-                        "They mainly target the latissimus dorsi while also working the biceps and upper back.\n" +
-                        "Grip the bar firmly with your hands slightly wider than shoulder-width apart.\n" +
-                        "Pull your body upward until your chin reaches or passes the bar.\n" +
-                        "Avoid swinging your body or using momentum to complete the movement.\n" +
-                        "Lower yourself slowly to maintain control and muscle tension.\n" +
-                        "Keep your core engaged to stabilize your body throughout the exercise.\n" +
-                        "Beginners can use resistance bands or an assisted pull-up machine.\n" +
-                        "Focus on proper shoulder positioning to reduce joint stress.",
-                "back", "pull_ups");
-
-        addExerciseInternal(db, "Deadlift",
-                "The Deadlift is a powerful compound exercise that builds total body strength.\n" +
-                        "It mainly targets the back, glutes, hamstrings, and core muscles.\n" +
-                        "Stand with your feet about hip-width apart and keep the bar close to your body.\n" +
-                        "Maintain a neutral spine throughout the entire lift to protect your lower back.\n" +
-                        "Lift the weight by driving through your legs and extending your hips together.\n" +
-                        "Avoid rounding your back, because this greatly increases injury risk.\n" +
-                        "Stand tall at the top without leaning backward excessively.\n" +
-                        "Lower the bar with control instead of dropping it carelessly.\n" +
-                        "Always prioritize technique over lifting the heaviest possible weight.",
-                "back", "deadlift");
-
-        // Abs
-        addExerciseInternal(db, "Crunches",
-                "Crunches are a basic abdominal exercise used to strengthen the core muscles.\n" +
-                        "Lie on your back with your knees bent and your feet flat on the floor.\n" +
-                        "Place your hands lightly behind your head or across your chest.\n" +
-                        "Lift your shoulders slightly off the floor by contracting your abdominal muscles.\n" +
-                        "Avoid pulling your neck forward, because this can cause discomfort or strain.\n" +
-                        "Move slowly and avoid using momentum during the exercise.\n" +
-                        "Exhale as you crunch upward and inhale as you return down.\n" +
-                        "Keep your lower back stable and focus on quality repetitions.\n" +
-                        "Correct posture is more important than doing many fast repetitions.",
-                "abs", "crunches");
-
-        addExerciseInternal(db, "Plank",
-                "The Plank is an isometric exercise that strengthens the core and improves stability.\n" +
-                        "It also engages the shoulders, glutes, and lower back muscles.\n" +
-                        "Place your forearms or hands on the floor and keep your body in a straight line.\n" +
-                        "Engage your abdominal muscles and glutes to maintain proper alignment.\n" +
-                        "Avoid letting your hips sag or rise too high during the hold.\n" +
-                        "Keep your neck neutral and look slightly down toward the floor.\n" +
-                        "Breathe steadily instead of holding your breath during the exercise.\n" +
-                        "Start with shorter holds and increase the duration as your strength improves.\n" +
-                        "Perfect form is more important than holding the plank for a very long time.",
-                "abs", "plank");
+    private void insertGreekExercises(SQLiteDatabase db) {
+        addExerciseInternal(db, "Πιέσεις Πάγκου με Κλίση", "Οι πιέσεις πάγκου με κλίση στοχεύουν το πάνω μέρος του στήθους.\nΡυθμίστε τον πάγκο στις 30-45 μοίρες.\nΚρατήστε τα πόδια στο πάτωμα.\nΚατεβάστε τη μπάρα αργά στο στήθος.\nΜην αναπηδάτε τη μπάρα.\nΚρατήστε τους καρπούς ίσιους.\nΑναπνέετε σωστά.\nΜην βάζετε υπερβολικό βάρος.\nΚρατήστε τις ωμοπλάτες πίσω.", "chest", "incline_bench_press", "el");
+        addExerciseInternal(db, "Πιέσεις σε Ίσιο Πάγκο", "Οι πιέσεις σε ίσιο πάγκο χτίζουν δύναμη στο στήθος.\nΣτοχεύουν θωρακικούς, τρικέφαλους και ώμους.\nΞαπλώστε στον πάγκο.\nΚατεβάστε τη μπάρα στο κέντρο του στήθους.\nΜην ανοίγετε πολύ τους αγκώνες.\nΣπρώξτε τη μπάρα πάνω ομαλά.\nΔιατηρήστε φυσική καμπύλη στη μέση.\nΧρησιμοποιήστε βοηθό στα πολλά βάρη.\nΕστιάστε στη σωστή τεχνική.", "chest", "flat_bench_press", "el");
+        addExerciseInternal(db, "Ανοίγματα Στήθους", "Τα ανοίγματα στήθους είναι άσκηση απομόνωσης.\nΚρατήστε ελαφριά κάμψη στους αγκώνες.\nΑνοίξτε τα χέρια μέχρι να νιώσετε διάταση.\nΜην κατεβάζετε τα βάρη πολύ χαμηλά.\nΦέρτε τα βάρη μαζί σφίγγοντας το στήθος.\nΜην την μετατρέπετε σε πιέσεις.\nΧρησιμοποιήστε ελαφριά βάρη.\nΚρατήστε τη στάση σας σταθερή.\nΑναπνέετε σωστά.", "chest", "chest_fly", "el");
+        addExerciseInternal(db, "Κάμψεις Δικεφάλων", "Οι κάμψεις δικεφάλων δυναμώνουν τους δικέφαλους.\nΣταθείτε όρθιοι με αγκώνες κοντά στον κορμό.\nΛυγίστε το βάρος με τα μπράτσα ακίνητα.\nΜην κουνάτε το σώμα σας.\nΣφίξτε τους δικέφαλους στην κορυφή.\nΚατεβάστε το βάρος αργά.\nΚρατήστε τους καρπούς σταθερούς.\nΚάντε πλήρη κίνηση.\nΟι ελεγχόμενες επαναλήψεις μετρούν.", "arm", "bicep_curl", "el");
+        addExerciseInternal(db, "Βυθίσεις Τρικεφάλων", "Οι βυθίσεις στοχεύουν τους τρικέφαλους.\nΓίνονται σε δίζυγο ή σε πάγκο.\nΣτήθος ψηλά και αγκώνες προς τα πίσω.\nΚατεβείτε μέχρι τις 90 μοίρες.\nΜην πάτε πολύ χαμηλά.\nΣπρώξτε πάνω με τους τρικέφαλους.\nΜείνετε όρθιοι για τους τρικέφαλους.\nΟι αρχάριοι χρησιμοποιούν υποβοήθηση.\nΚινηθείτε αργά.", "arm", "tricep_dips", "el");
+        addExerciseInternal(db, "Καθίσματα", "Τα καθίσματα γυμνάζουν πόδια και γλουτούς.\nΠόδια στο άνοιγμα των ώμων.\nΚατεβάστε τους γοφούς πίσω και κάτω.\nΓόνατα στην ίδια ευθεία με τα δάχτυλα.\nΜην αφήνετε τα γόνατα να κλείνουν.\nΣπονδυλική στήλη ίσια και κορμός σφιχτός.\nΣπρώξτε με τις φτέρνες για να σηκωθείτε.\nΜην γέρνετε πολύ μπροστά.\nΚάντε ζέσταμα.", "legs", "squats", "el");
+        addExerciseInternal(db, "Πρέσα Ποδιών", "Η πρέσα δυναμώνει τα πόδια με ασφάλεια.\nΣτοχεύει τετρακέφαλους και γλουτούς.\nΚαθίστε σταθερά με τα πόδια στην πλατφόρμα.\nΚατεβάστε αργά μέχρι τις 90 μοίρες.\nΜην φέρνετε γόνατα πολύ κοντά στο στήθος.\nΣπρώξτε πάνω με τις φτέρνες.\nΜέση κολλημένη στο κάθισμα.\nΧρησιμοποιήστε ελεγχόμενη κίνηση.\nΑυξήστε το βάρος σταδιακά.", "legs", "leg_press", "el");
+        addExerciseInternal(db, "Πιέσεις Ώμων", "Οι πιέσεις ώμων χτίζουν δύναμη στο πάνω σώμα.\nΣτοχεύουν δελτοειδείς και τρικέφαλους.\nΠόδια στο άνοιγμα των ώμων.\nΠιέστε πάνω σε ευθεία γραμμή.\nΜην τοξοειδείτε τη μέση.\nΚατεβάστε αργά στο ύψος των ώμων.\nΚρατήστε τον κορμό σφιχτό.\nΞεκινήστε με λίγα βάρη.\nΑναπνέετε σταθερά.", "shoulders", "overhead_press", "el");
+        addExerciseInternal(db, "Πλάγιες Εκτάσεις", "Οι πλάγιες εκτάσεις στοχεύουν τους ώμους.\nΒοηθούν στο πλάτος των ώμων.\nΚρατήστε τους αλτήρες στα πλάγια.\nΣηκώστε μέχρι το ύψος των ώμων.\nΜην σηκώνετε πολύ ψηλά.\nΜην κουνάτε το σώμα σας.\nΚατεβάστε τα βάρη αργά.\nΧρησιμοποιήστε ελαφριά βάρη.\nΚρατήστε τους ώμους χαλαρούς.", "shoulders", "lateral_raise", "el");
+        addExerciseInternal(db, "Έλξεις στο Μονόζυγο", "Οι έλξεις δυναμώνουν την πλάτη.\nΣτοχεύουν φτερά και δικέφαλους.\nΠιάστε τη μπάρα έξω από τους ώμους.\nΤραβήξτε μέχρι το πηγούνι να περάσει.\nΜην κουνιέστε για ορμή.\nΚατεβείτε αργά.\nΚρατήστε τον κορμό ενεργό.\nΟι αρχάριοι χρησιμοποιούν λάστιχα.\nΕστιάστε στους ώμους.", "back", "pull_ups", "el");
+        addExerciseInternal(db, "Άρσεις Θανάτου", "Οι άρσεις θανάτου χτίζουν όλο το σώμα.\nΣτοχεύουν πλάτη, γλουτούς και μέση.\nΠόδια στο άνοιγμα των γοφών.\nΊσια πλάτη σε όλη τη διάρκεια.\nΣηκώστε σπρώχνοντας με τα πόδια.\nΜην καμπουριάζετε την πλάτη.\nΣταθείτε όρθιοι στην κορυφή.\nΚατεβάστε ελεγχόμενα.\nΤεχνική πάνω από όλα.", "back", "deadlift", "el");
+        addExerciseInternal(db, "Ροκανίσματα", "Τα ροκανίσματα δυναμώνουν τους κοιλιακούς.\nΑνάσκελα με λυγισμένα γόνατα.\nΧέρια πίσω από το κεφάλι ελαφρά.\nΣηκώστε ώμους λίγο από το πάτωμα.\nΜην τραβάτε τον αυχένα.\nΚινηθείτε αργά.\nΕκπνεύστε καθώς ανεβαίνετε.\nΚρατήστε τη μέση σταθερή.\nΠοιότητα αντί για ταχύτητα.", "abs", "crunches", "el");
+        addExerciseInternal(db, "Σανίδα", "Η σανίδα γυμνάζει όλο τον κορμό.\nΠήχεις στο πάτωμα, σώμα ίσιο.\nΣφίξτε κοιλιακούς και γλουτούς.\nΜην αφήνετε τη μέση να πέφτει.\nΑυχένας σε ουδέτερη θέση.\nΑναπνέετε σταθερά.\nΞεκινήστε με λίγα δευτερόλεπτα.\nΗ σωστή στάση είναι το παν.", "abs", "plank", "el");
     }
 
     private void addExerciseInternal(SQLiteDatabase db, String title, String description,
-                                     String muscleGroup, String imageName) {
+                                     String muscleGroup, String imageName, String lang) {
         ContentValues values = new ContentValues();
         values.put(COLUMN_TITLE, title);
         values.put(COLUMN_DESCRIPTION, description);
         values.put(COLUMN_MUSCLE_GROUP, muscleGroup);
         values.put(COLUMN_IMAGE_NAME, imageName);
+        values.put(COLUMN_LANGUAGE, lang);
         db.insert(TABLE_EXERCISES, null, values);
     }
 }

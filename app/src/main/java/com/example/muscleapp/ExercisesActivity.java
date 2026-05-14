@@ -5,13 +5,16 @@ import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.graphics.Insets;
+import androidx.core.os.LocaleListCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class ExercisesActivity extends AppCompatActivity {
 
@@ -32,6 +35,12 @@ public class ExercisesActivity extends AppCompatActivity {
             return insets;
         });
 
+        // Setup language buttons
+        android.view.View btnEn = findViewById(R.id.btn_en);
+        android.view.View btnEl = findViewById(R.id.btn_el);
+        if (btnEn != null) btnEn.setOnClickListener(v -> setLocale("en"));
+        if (btnEl != null) btnEl.setOnClickListener(v -> setLocale("el"));
+
         recyclerView = findViewById(R.id.recycler_exercises);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
         recyclerView.setLayoutManager(gridLayoutManager);
@@ -45,10 +54,25 @@ public class ExercisesActivity extends AppCompatActivity {
             muscleGroup = "chest";   // fallback
         }
 
+        // Get current language from AppCompatDelegate
+        LocaleListCompat locales = AppCompatDelegate.getApplicationLocales();
+        String lang;
+        if (!locales.isEmpty() && locales.get(0) != null) {
+            lang = locales.get(0).getLanguage();
+        } else {
+            lang = Locale.getDefault().getLanguage();
+        }
+        if (!"el".equals(lang)) lang = "en";
+
         // Load exercises from DB
-        exerciseList = dbHandler.getExercisesByMuscleGroup(muscleGroup);
+        exerciseList = dbHandler.getExercisesByMuscleGroup(muscleGroup, lang);
 
         adapter = new ExerciseAdapter(this, exerciseList);
         recyclerView.setAdapter(adapter);
+    }
+
+    private void setLocale(String lang) {
+        LocaleListCompat appLocales = LocaleListCompat.forLanguageTags(lang);
+        AppCompatDelegate.setApplicationLocales(appLocales);
     }
 }

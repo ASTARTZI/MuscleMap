@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">MuscleApp</string>
+    <string name="chest_button">ΣΤΗΘΟΣ</string>
+    <string name="arm_button">ΧΕΡΙΑ</string>
+    <string name="legs_button">ΠΟΔΙΑ</string>
+    <string name="abs_button">ΚΟΙΛΙΑΚΟΙ</string>
+    <string name="back_button">ΠΛΑΤΗ</string>
+    <string name="shoulders_button">ΩΜΟΙ</string>
+    <string name="exercise_image">Περιγραφή άσκησης</string>
+    <string name="exercise_title">Τίτλος άσκησης</string>
+    <string name="logout">Αποσύνδεση</string>
+    <string name="login">Σύνδεση</string>
+    <string name="register">Εγγραφή</string>
+    <string name="welcome">Καλώς ήρθατε</string>
+    <string name="sign_up">Εγγραφή</string>
+    <string name="email_hint">Email</string>
+    <string name="password_hint">Κωδικός</string>
+    <string name="footer_text">MuscleMap App | Mobile Applications Development Project 2026 ©</string>
+    <string name="muscle_group_prefix">Μυϊκή Ομάδα: </string>
+    <string name="chest">Στήθος</string>
+    <string name="arm">Χέρια</string>
+    <string name="legs">Πόδια</string>
+    <string name="shoulders">Ώμοι</string>
+    <string name="back">Πλάτη</string>
+    <string name="abs">Κοιλιακοί</string>
+    <string name="lang_en">EN</string>
+    <string name="lang_el">EL</string>
+</resources>

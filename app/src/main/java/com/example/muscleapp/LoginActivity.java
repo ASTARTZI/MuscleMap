@@ -9,7 +9,9 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.graphics.Insets;
+import androidx.core.os.LocaleListCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
@@ -32,11 +34,18 @@ public class LoginActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        loginemail=findViewById(R.id.loginemailET);
-        loginpassword=findViewById(R.id.loginpasswordET);
-        signinbtn=findViewById(R.id.signinbtn);
-        gotoregisterbtn=findViewById(R.id.gotoregisterbtn);
+
+        loginemail = findViewById(R.id.loginemailET);
+        loginpassword = findViewById(R.id.loginpasswordET);
+        signinbtn = findViewById(R.id.signinbtn);
+        gotoregisterbtn = findViewById(R.id.gotoregisterbtn);
         mAuth = FirebaseAuth.getInstance();
+
+        // Language selection buttons
+        View btnEn = findViewById(R.id.btn_en);
+        View btnEl = findViewById(R.id.btn_el);
+        if (btnEn != null) btnEn.setOnClickListener(v -> setLocale("en"));
+        if (btnEl != null) btnEl.setOnClickListener(v -> setLocale("el"));
 
         // Check if user is already signed in
         if (mAuth.getCurrentUser() != null) {
@@ -61,6 +70,11 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    private void setLocale(String lang) {
+        LocaleListCompat appLocales = LocaleListCompat.forLanguageTags(lang);
+        AppCompatDelegate.setApplicationLocales(appLocales);
+    }
+
     private void loginButtonClicked() {
         String email = loginemail.getText().toString().trim();
         String password = loginpassword.getText().toString().trim();
@@ -75,9 +89,9 @@ public class LoginActivity extends AppCompatActivity {
                 Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 startActivity(intent);
-                finish(); // Close LoginActivity
+                finish();
             } else {
-                Toast.makeText(this, "Login Failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Login Failed: " + (task.getException() != null ? task.getException().getMessage() : "Unknown error"), Toast.LENGTH_SHORT).show();
             }
         });
     }
