@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/exercises"
-    android:background="@color/red">
+    android:background="@color/black">
 
     <LinearLayout
         android:id="@+id/lang_layout"
@@ -31,7 +31,7 @@
             android:id="@+id/btn_el"
             android:layout_width="70dp"
             android:layout_height="40dp"
-            android:text="el"
+            android:text="gr"
             android:textAllCaps="false"
             android:textSize="14sp"
             app:backgroundTint="@color/black"
