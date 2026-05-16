@@ -2,10 +2,12 @@ package com.example.muscleapp;
 
 import android.content.Intent;
 import android.os.Bundle;
-
+import android.widget.ImageButton;
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.widget.SearchView;
 import androidx.core.graphics.Insets;
 import androidx.core.os.LocaleListCompat;
 import androidx.core.view.ViewCompat;
@@ -13,15 +15,20 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 public class ExercisesActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private ExerciseAdapter adapter;
     private List<Exercise> exerciseList;
+    private List<Exercise> filteredList;
     private ExerciseDBHandler dbHandler;
+    private Set<String> selectedTags = new HashSet<>();
+    private String currentSearchQuery = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,12 +41,6 @@ public class ExercisesActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-
-        // Setup language buttons
-        android.view.View btnEn = findViewById(R.id.btn_en);
-        android.view.View btnEl = findViewById(R.id.btn_el);
-        if (btnEn != null) btnEn.setOnClickListener(v -> setLocale("en"));
-        if (btnEl != null) btnEl.setOnClickListener(v -> setLocale("el"));
 
         recyclerView = findViewById(R.id.recycler_exercises);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
@@ -66,13 +67,107 @@ public class ExercisesActivity extends AppCompatActivity {
 
         // Load exercises from DB
         exerciseList = dbHandler.getExercisesByMuscleGroup(muscleGroup, lang);
+        filteredList = new ArrayList<>(exerciseList);
 
-        adapter = new ExerciseAdapter(this, exerciseList);
+        adapter = new ExerciseAdapter(this, filteredList);
         recyclerView.setAdapter(adapter);
+
+        // Setup Search
+        SearchView searchView = findViewById(R.id.search_view);
+        if (searchView != null) {
+            // Force white hint and text color
+            android.widget.EditText searchEditText = searchView.findViewById(androidx.appcompat.R.id.search_src_text);
+            if (searchEditText != null) {
+                searchEditText.setHintTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.white));
+                searchEditText.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.white));
+            }
+
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    currentSearchQuery = query;
+                    applyFilters();
+                    return true;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    currentSearchQuery = newText;
+                    applyFilters();
+                    return true;
+                }
+            });
+        }
+
+        // Setup Filter
+        ImageButton btnFilter = findViewById(R.id.btn_filter);
+        if (btnFilter != null) {
+            btnFilter.setOnClickListener(v -> showFilterDialog());
+        }
     }
 
-    private void setLocale(String lang) {
-        LocaleListCompat appLocales = LocaleListCompat.forLanguageTags(lang);
-        AppCompatDelegate.setApplicationLocales(appLocales);
+    private void showFilterDialog() {
+        // Extract all unique tags from exerciseList
+        Set<String> allTagsSet = new HashSet<>();
+        for (Exercise e : exerciseList) {
+            String tagsRaw = e.getTags();
+            if (tagsRaw != null && !tagsRaw.isEmpty()) {
+                String[] tagsArray = tagsRaw.split(",");
+                for (String tag : tagsArray) {
+                    allTagsSet.add(tag.trim());
+                }
+            }
+        }
+
+        String[] allTags = allTagsSet.toArray(new String[0]);
+        boolean[] checkedItems = new boolean[allTags.length];
+        for (int i = 0; i < allTags.length; i++) {
+            if (selectedTags.contains(allTags[i])) {
+                checkedItems[i] = true;
+            }
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Filter by Tags");
+        builder.setMultiChoiceItems(allTags, checkedItems, (dialog, which, isChecked) -> {
+            if (isChecked) {
+                selectedTags.add(allTags[which]);
+            } else {
+                selectedTags.remove(allTags[which]);
+            }
+        });
+
+        builder.setPositiveButton("Apply", (dialog, which) -> applyFilters());
+        builder.setNegativeButton("Clear All", (dialog, which) -> {
+            selectedTags.clear();
+            applyFilters();
+        });
+        builder.show();
+    }
+
+    private void applyFilters() {
+        List<Exercise> newList = new ArrayList<>();
+        for (Exercise e : exerciseList) {
+            boolean matchesSearch = currentSearchQuery.isEmpty() ||
+                    e.getTitle().toLowerCase().contains(currentSearchQuery.toLowerCase()) ||
+                    (e.getTags() != null && e.getTags().toLowerCase().contains(currentSearchQuery.toLowerCase()));
+
+            boolean matchesFilter = selectedTags.isEmpty();
+            if (!selectedTags.isEmpty() && e.getTags() != null) {
+                String[] eTags = e.getTags().split(",");
+                for (String t : eTags) {
+                    if (selectedTags.contains(t.trim())) {
+                        matchesFilter = true;
+                        break;
+                    }
+                }
+            }
+
+            if (matchesSearch && matchesFilter) {
+                newList.add(e);
+            }
+        }
+        filteredList = newList;
+        adapter.updateList(filteredList);
     }
 }

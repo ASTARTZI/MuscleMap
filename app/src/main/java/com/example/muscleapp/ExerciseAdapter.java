@@ -14,12 +14,17 @@ import java.util.List;
 
 public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.ViewHolder> {
 
-    private final List<Exercise> exercises;
+    private List<Exercise> exercises;
     private final Context context;
 
     public ExerciseAdapter(Context context, List<Exercise> exercises) {
         this.context = context;
         this.exercises = exercises;
+    }
+
+    public void updateList(List<Exercise> newList) {
+        this.exercises = newList;
+        notifyDataSetChanged();
     }
 
     @NonNull

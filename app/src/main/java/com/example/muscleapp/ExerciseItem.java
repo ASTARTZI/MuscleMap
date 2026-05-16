@@ -4,8 +4,8 @@ public class ExerciseItem extends Exercise{
     private int reps;
     private float weightKG;
 
-    public ExerciseItem(String title, String description, String muscleGroup, String imageName, int reps, float weightKG) {
-        super(title, description, muscleGroup, imageName);
+    public ExerciseItem(String title, String description, String muscleGroup, String imageName, String tags, int reps, float weightKG) {
+        super(title, description, muscleGroup, imageName, tags);
         this.reps = reps;
         this.weightKG = weightKG;
     }
