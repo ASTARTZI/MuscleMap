@@ -2,7 +2,10 @@ package com.example.muscleapp;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.AutoCompleteTextView;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,6 +17,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -22,12 +26,11 @@ import java.util.Set;
 
 public class ExercisesActivity extends AppCompatActivity {
 
-    private RecyclerView recyclerView;
     private ExerciseAdapter adapter;
     private List<Exercise> exerciseList;
     private List<Exercise> filteredList;
     private ExerciseDBHandler dbHandler;
-    private Set<String> selectedTags = new HashSet<>();
+    private final Set<String> selectedTags = new HashSet<>();
     private String currentSearchQuery = "";
 
     @Override
@@ -42,7 +45,7 @@ public class ExercisesActivity extends AppCompatActivity {
             return insets;
         });
 
-        recyclerView = findViewById(R.id.recycler_exercises);
+        RecyclerView recyclerView = findViewById(R.id.recycler_exercises);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
         recyclerView.setLayoutManager(gridLayoutManager);
 
@@ -53,6 +56,23 @@ public class ExercisesActivity extends AppCompatActivity {
         String muscleGroup = intent.getStringExtra("MUSCLE_GROUP");
         if (muscleGroup == null) {
             muscleGroup = "chest";   // fallback
+        }
+
+        // Show Add button only for Admin
+        Button addBtn = findViewById(R.id.add_exercise_button);
+        if (addBtn != null) {
+            boolean isAdmin = getSharedPreferences("MuscleAppPrefs", MODE_PRIVATE)
+                    .getBoolean("is_admin", false);
+            
+            if (isAdmin) {
+                addBtn.setVisibility(View.VISIBLE);
+                addBtn.setOnClickListener(v -> {
+                    Intent addIntent = new Intent(this, AddExerciseActivity.class);
+                    startActivity(addIntent);
+                });
+            } else {
+                addBtn.setVisibility(View.GONE);
+            }
         }
 
         // Get current language from AppCompatDelegate
@@ -75,11 +95,12 @@ public class ExercisesActivity extends AppCompatActivity {
         // Setup Search
         SearchView searchView = findViewById(R.id.search_view);
         if (searchView != null) {
-            // Force white hint and text color
-            android.widget.EditText searchEditText = searchView.findViewById(androidx.appcompat.R.id.search_src_text);
+            searchView.setBackgroundColor(android.graphics.Color.WHITE);
+            
+            AutoCompleteTextView searchEditText = searchView.findViewById(androidx.appcompat.R.id.search_src_text);
             if (searchEditText != null) {
-                searchEditText.setHintTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.white));
-                searchEditText.setTextColor(androidx.core.content.ContextCompat.getColor(this, R.color.white));
+                searchEditText.setTextColor(android.graphics.Color.BLACK);
+                searchEditText.setHintTextColor(android.graphics.Color.GRAY);
             }
 
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -107,7 +128,6 @@ public class ExercisesActivity extends AppCompatActivity {
     }
 
     private void showFilterDialog() {
-        // Extract all unique tags from exerciseList
         Set<String> allTagsSet = new HashSet<>();
         for (Exercise e : exerciseList) {
             String tagsRaw = e.getTags();
@@ -168,6 +188,6 @@ public class ExercisesActivity extends AppCompatActivity {
             }
         }
         filteredList = newList;
-        adapter.updateList(filteredList);
+        adapter.updateList(newList);
     }
 }

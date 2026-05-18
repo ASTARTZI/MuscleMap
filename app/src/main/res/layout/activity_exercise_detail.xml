@@ -7,10 +7,42 @@
     android:layout_height="match_parent"
     android:background="@android:color/black">
 
+    <LinearLayout
+        android:id="@+id/lang_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <Button
+            android:id="@+id/btn_en"
+            style="?android:attr/buttonBarStyle"
+            android:layout_width="70dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="4dp"
+            android:text="EN"
+            android:textAllCaps="true"
+            android:textSize="14sp"
+            app:backgroundTint="@color/red" />
+
+        <Button
+            android:id="@+id/btn_el"
+            style="?android:attr/buttonBarStyle"
+            android:layout_width="70dp"
+            android:layout_height="40dp"
+            android:text="GR"
+            android:textAllCaps="true"
+            android:textSize="14sp"
+            app:backgroundTint="@color/red" />
+    </LinearLayout>
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/lang_layout"
         app:layout_constraintBottom_toTopOf="@+id/footer">
 
         <LinearLayout

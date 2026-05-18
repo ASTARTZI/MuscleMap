@@ -113,6 +113,19 @@ public class ExerciseDBHandler extends SQLiteOpenHelper {
         return exercise;
     }
 
+    public void addExercise(String title, String description, String muscleGroup, String imageName, String lang, String tags) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_TITLE, title);
+        values.put(COLUMN_DESCRIPTION, description);
+        values.put(COLUMN_MUSCLE_GROUP, muscleGroup);
+        values.put(COLUMN_IMAGE_NAME, imageName);
+        values.put(COLUMN_LANGUAGE, lang);
+        values.put(COLUMN_TAGS, tags);
+        db.insert(TABLE_EXERCISES, null, values);
+        db.close();
+    }
+
     private void insertDefaultExercises(SQLiteDatabase db) {
         insertEnglishExercises(db);
         insertGreekExercises(db);

@@ -24,7 +24,7 @@
     <string name="back">Πλάτη</string>
     <string name="abs">Κοιλιακοί</string>
     <string name="lang_en">EN</string>
-    <string name="lang_el">EL</string>
+    <string name="lang_el">GR</string>
     <string name="search_hint">Αναζήτηση ασκήσεων…</string>
     <string name="filter_description">Φιλτράρισμα με ετικέτες</string>
 </resources>

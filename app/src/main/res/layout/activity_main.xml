@@ -20,24 +20,24 @@
 
         <Button
             android:id="@+id/btn_en"
+            style="?android:attr/buttonBarStyle"
             android:layout_width="70dp"
             android:layout_height="40dp"
-            android:text="en"
-            android:textAllCaps="false"
-            android:textSize="14sp"
-            app:backgroundTint="@color/red"
             android:layout_marginEnd="4dp"
-            style="?android:attr/buttonBarStyle" />
+            android:text="EN"
+            android:textAllCaps="true"
+            android:textSize="14sp"
+            app:backgroundTint="@color/red" />
 
         <Button
             android:id="@+id/btn_el"
+            style="?android:attr/buttonBarStyle"
             android:layout_width="70dp"
             android:layout_height="40dp"
-            android:text="el"
-            android:textAllCaps="false"
+            android:text="GR"
+            android:textAllCaps="true"
             android:textSize="14sp"
-            app:backgroundTint="@color/red"
-            style="?android:attr/buttonBarStyle" />
+            app:backgroundTint="@color/red" />
     </LinearLayout>
 
     <Button
@@ -84,11 +84,10 @@
         android:id="@+id/abs_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="36dp"
-        android:layout_marginBottom="200dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginBottom="216dp"
         android:backgroundTint="@color/black"
         android:text="@string/abs_button"
-        android:textAlignment="center"
         android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="@+id/imageView3"
         app:layout_constraintEnd_toEndOf="@+id/imageView3" />

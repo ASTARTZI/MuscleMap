@@ -32,6 +32,9 @@
         <activity
             android:name=".ExerciseDetailActivity"
             android:exported="false" />
+        <activity
+            android:name=".AddExerciseActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

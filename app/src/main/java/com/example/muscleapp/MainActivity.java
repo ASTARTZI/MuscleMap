@@ -48,6 +48,12 @@ public class MainActivity extends AppCompatActivity {
         if (logoutBtn != null) {
             logoutBtn.setOnClickListener(v -> {
                 FirebaseAuth.getInstance().signOut();
+                // Clear admin status on logout
+                getSharedPreferences("MuscleAppPrefs", MODE_PRIVATE)
+                        .edit()
+                        .putBoolean("is_admin", false)
+                        .apply();
+
                 Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);

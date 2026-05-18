@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/add_exercise_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:id="@+id/lang_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <Button
+            android:id="@+id/btn_en"
+            style="?android:attr/buttonBarStyle"
+            android:layout_width="70dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="4dp"
+            android:text="EN"
+            android:textAllCaps="true"
+            android:textSize="14sp"
+            app:backgroundTint="@color/red" />
+
+        <Button
+            android:id="@+id/btn_el"
+            style="?android:attr/buttonBarStyle"
+            android:layout_width="70dp"
+            android:layout_height="40dp"
+            android:text="GR"
+            android:textAllCaps="true"
+            android:textSize="14sp"
+            app:backgroundTint="@color/red" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@+id/lang_layout"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Add New Exercise"
+                android:textColor="@color/white"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:fontFamily="serif"
+                android:gravity="center"
+                android:layout_marginBottom="16dp"/>
+
+            <EditText
+                android:id="@+id/add_title_en"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Title (English)"
+                android:textColor="@color/white"
+                android:textColorHint="@android:color/darker_gray" />
+
+            <EditText
+                android:id="@+id/add_desc_en"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Description (English) - ~10 lines"
+                android:lines="5"
+                android:gravity="top"
+                android:textColor="@color/white"
+                android:textColorHint="@android:color/darker_gray" />
+
+            <EditText
+                android:id="@+id/add_title_el"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Τίτλος (Ελληνικά)"
+                android:textColor="@color/white"
+                android:textColorHint="@android:color/darker_gray"
+                android:layout_marginTop="8dp"/>
+
+            <EditText
+                android:id="@+id/add_desc_el"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Περιγραφή (Ελληνικά) - ~10 γραμμές"
+                android:lines="5"
+                android:gravity="top"
+                android:textColor="@color/white"
+                android:textColorHint="@android:color/darker_gray" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Muscle Group (e.g. chest, arm, legs, shoulders, back, abs)"
+                android:textColor="@color/white"
+                android:layout_marginTop="8dp"/>
+
+            <EditText
+                android:id="@+id/add_muscle_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="e.g. chest"
+                android:textColor="@color/white"
+                android:textColorHint="@android:color/darker_gray" />
+
+            <EditText
+                android:id="@+id/add_image_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Image name (drawable)"
+                android:textColor="@color/white"
+                android:textColorHint="@android:color/darker_gray" />
+
+            <Button
+                android:id="@+id/btn_save_exercise"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Save Exercise"
+                app:backgroundTint="@color/red"
+                android:layout_marginTop="24dp"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -88,6 +88,12 @@ public class RegisterActivity extends AppCompatActivity {
         }
         mAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener(task -> {
             if(task.isSuccessful()){
+                // Not admin
+                getSharedPreferences("MuscleAppPrefs", MODE_PRIVATE)
+                        .edit()
+                        .putBoolean("is_admin", false)
+                        .apply();
+
                 Toast.makeText(this, "Successful registration", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
                 startActivity(intent);

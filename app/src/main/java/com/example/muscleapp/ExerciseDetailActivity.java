@@ -1,6 +1,7 @@
 package com.example.muscleapp;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -39,6 +40,12 @@ public class ExerciseDetailActivity extends AppCompatActivity {
         TextView muscleGroupTextView = findViewById(R.id.detail_muscle_group);
         TextView descriptionTextView = findViewById(R.id.detail_description);
 
+        // Setup language buttons
+        View btnEn = findViewById(R.id.btn_en);
+        View btnEl = findViewById(R.id.btn_el);
+        if (btnEn != null) btnEn.setOnClickListener(v -> setLocale("en"));
+        if (btnEl != null) btnEl.setOnClickListener(v -> setLocale("el"));
+
         // Get initial data from intent
         imageName = getIntent().getStringExtra("EXERCISE_IMAGE");
 
@@ -66,16 +73,18 @@ public class ExerciseDetailActivity extends AppCompatActivity {
             
             // Translate multiple muscle groups
             String muscleGroupsRaw = exercise.getMuscleGroup();
-            String[] groups = muscleGroupsRaw.split(",");
             StringBuilder translatedGroups = new StringBuilder();
             
-            for (int i = 0; i < groups.length; i++) {
-                String muscleKey = groups[i].trim();
-                int muscleResId = getResources().getIdentifier(muscleKey, "string", getPackageName());
-                String muscleTranslated = (muscleResId != 0) ? getString(muscleResId) : muscleKey;
-                translatedGroups.append(muscleTranslated);
-                if (i < groups.length - 1) {
-                    translatedGroups.append(", ");
+            if (muscleGroupsRaw != null) {
+                String[] groups = muscleGroupsRaw.split(",");
+                for (int i = 0; i < groups.length; i++) {
+                    String muscleKey = groups[i].trim();
+                    int muscleResId = getResources().getIdentifier(muscleKey, "string", getPackageName());
+                    String muscleTranslated = (muscleResId != 0) ? getString(muscleResId) : muscleKey;
+                    translatedGroups.append(muscleTranslated);
+                    if (i < groups.length - 1) {
+                        translatedGroups.append(", ");
+                    }
                 }
             }
             
@@ -91,5 +100,10 @@ public class ExerciseDetailActivity extends AppCompatActivity {
                         .into(imgV);
             }
         }
+    }
+
+    private void setLocale(String lang) {
+        LocaleListCompat appLocales = LocaleListCompat.forLanguageTags(lang);
+        AppCompatDelegate.setApplicationLocales(appLocales);
     }
 }

@@ -84,8 +84,29 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
+        // Check for local hardcoded admin
+        if (email.equals("admin@gmail.com") && password.equals("admin")) {
+            // Save admin status in SharedPreferences
+            getSharedPreferences("MuscleAppPrefs", MODE_PRIVATE)
+                    .edit()
+                    .putBoolean("is_admin", true)
+                    .apply();
+
+            Toast.makeText(this, "Welcome Admin", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+            return;
+        }
+
         mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
+                // Not admin
+                getSharedPreferences("MuscleAppPrefs", MODE_PRIVATE)
+                        .edit()
+                        .putBoolean("is_admin", false)
+                        .apply();
+
                 Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 startActivity(intent);
