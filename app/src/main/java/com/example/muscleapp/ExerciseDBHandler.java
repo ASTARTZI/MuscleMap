@@ -126,6 +126,12 @@ public class ExerciseDBHandler extends SQLiteOpenHelper {
         db.close();
     }
 
+    public void deleteExerciseByImageName(String imageName) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_EXERCISES, COLUMN_IMAGE_NAME + " = ?", new String[]{imageName});
+        db.close();
+    }
+
     private void insertDefaultExercises(SQLiteDatabase db) {
         insertEnglishExercises(db);
         insertGreekExercises(db);

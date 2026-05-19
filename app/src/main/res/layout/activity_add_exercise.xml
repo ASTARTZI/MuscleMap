@@ -37,6 +37,17 @@
             app:backgroundTint="@color/red" />
     </LinearLayout>
 
+    <ImageButton
+        android:id="@+id/btn_back_add"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@android:drawable/ic_menu_revert"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Back"
+        app:tint="@color/red"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -60,37 +71,18 @@
                 android:layout_marginBottom="16dp"/>
 
             <EditText
-                android:id="@+id/add_title_en"
+                android:id="@+id/add_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Title (English)"
+                android:hint="Exercise Name"
                 android:textColor="@color/white"
                 android:textColorHint="@android:color/darker_gray" />
 
             <EditText
-                android:id="@+id/add_desc_en"
+                android:id="@+id/add_desc"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Description (English) - ~10 lines"
-                android:lines="5"
-                android:gravity="top"
-                android:textColor="@color/white"
-                android:textColorHint="@android:color/darker_gray" />
-
-            <EditText
-                android:id="@+id/add_title_el"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Τίτλος (Ελληνικά)"
-                android:textColor="@color/white"
-                android:textColorHint="@android:color/darker_gray"
-                android:layout_marginTop="8dp"/>
-
-            <EditText
-                android:id="@+id/add_desc_el"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Περιγραφή (Ελληνικά) - ~10 γραμμές"
+                android:hint="Description - ~10 lines"
                 android:lines="5"
                 android:gravity="top"
                 android:textColor="@color/white"
@@ -111,13 +103,30 @@
                 android:textColor="@color/white"
                 android:textColorHint="@android:color/darker_gray" />
 
-            <EditText
-                android:id="@+id/add_image_name"
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Image name (drawable)"
+                android:text="Image or GIF (Optional)"
                 android:textColor="@color/white"
-                android:textColorHint="@android:color/darker_gray" />
+                android:layout_marginTop="16dp"
+                android:textStyle="bold"/>
+
+            <Button
+                android:id="@+id/btn_pick_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pick from device"
+                app:backgroundTint="@color/red"
+                android:layout_marginTop="8dp"/>
+
+            <TextView
+                android:id="@+id/tv_image_path"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="12sp"
+                android:text="No image selected"
+                android:layout_marginTop="4dp"/>
 
             <Button
                 android:id="@+id/btn_save_exercise"

@@ -1,12 +1,17 @@
 package com.example.muscleapp;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.graphics.Insets;
@@ -16,8 +21,22 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class AddExerciseActivity extends AppCompatActivity {
 
-    private EditText etTitleEn, etDescEn, etTitleEl, etDescEl, etMuscleGroup, etImageName;
+    private EditText etTitle, etDesc, etMuscleGroup;
+    private TextView tvImagePath;
     private ExerciseDBHandler dbHandler;
+    private String selectedImageUri = "";
+
+    private final ActivityResultLauncher<String> imagePickerLauncher = registerForActivityResult(
+            new ActivityResultContracts.GetContent(),
+            uri -> {
+                if (uri != null) {
+                    selectedImageUri = uri.toString();
+                    tvImagePath.setText("Image selected");
+                    // Grant persistent permission if needed (content URIs)
+                    getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                }
+            }
+    );
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,14 +58,19 @@ public class AddExerciseActivity extends AppCompatActivity {
         if (btnEn != null) btnEn.setOnClickListener(v -> setLocale("en"));
         if (btnEl != null) btnEl.setOnClickListener(v -> setLocale("el"));
 
-        etTitleEn = findViewById(R.id.add_title_en);
-        etDescEn = findViewById(R.id.add_desc_en);
-        etTitleEl = findViewById(R.id.add_title_el);
-        etDescEl = findViewById(R.id.add_desc_el);
-        etMuscleGroup = findViewById(R.id.add_muscle_group);
-        etImageName = findViewById(R.id.add_image_name);
-        Button btnSave = findViewById(R.id.btn_save_exercise);
+        // Back button
+        View btnBack = findViewById(R.id.btn_back_add);
+        if (btnBack != null) btnBack.setOnClickListener(v -> finish());
 
+        etTitle = findViewById(R.id.add_title);
+        etDesc = findViewById(R.id.add_desc);
+        etMuscleGroup = findViewById(R.id.add_muscle_group);
+        tvImagePath = findViewById(R.id.tv_image_path);
+        
+        Button btnPick = findViewById(R.id.btn_pick_image);
+        btnPick.setOnClickListener(v -> imagePickerLauncher.launch("image/*"));
+
+        Button btnSave = findViewById(R.id.btn_save_exercise);
         btnSave.setOnClickListener(v -> saveExercise());
     }
 
@@ -56,23 +80,22 @@ public class AddExerciseActivity extends AppCompatActivity {
     }
 
     private void saveExercise() {
-        String titleEn = etTitleEn.getText().toString().trim();
-        String descEn = etDescEn.getText().toString().trim();
-        String titleEl = etTitleEl.getText().toString().trim();
-        String descEl = etDescEl.getText().toString().trim();
+        String title = etTitle.getText().toString().trim();
+        String desc = etDesc.getText().toString().trim();
         String muscleGroup = etMuscleGroup.getText().toString().trim();
-        String imageName = etImageName.getText().toString().trim();
 
-        if (titleEn.isEmpty() || descEn.isEmpty() || titleEl.isEmpty() || descEl.isEmpty() || 
-            muscleGroup.isEmpty() || imageName.isEmpty()) {
-            Toast.makeText(this, "Please fill in all required fields", Toast.LENGTH_SHORT).show();
+        if (title.isEmpty() || desc.isEmpty() || muscleGroup.isEmpty()) {
+            Toast.makeText(this, "Title, Description and Muscle Group are mandatory", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Save English version (passing empty string for tags)
-        dbHandler.addExercise(titleEn, descEn, muscleGroup, imageName, "en", "");
-        // Save Greek version (passing empty string for tags)
-        dbHandler.addExercise(titleEl, descEl, muscleGroup, imageName, "el", "");
+        // If no image selected, use placeholder
+        String finalImage = selectedImageUri.isEmpty() ? "ic_placeholder" : selectedImageUri;
+
+        // Auto-translate logic: Saving the same English text for both language versions
+        // In a real app, you would call a translation API here.
+        dbHandler.addExercise(title, desc, muscleGroup, finalImage, "en", "");
+        dbHandler.addExercise(title, desc, muscleGroup, finalImage, "el", "");
 
         Toast.makeText(this, "Exercise added successfully!", Toast.LENGTH_SHORT).show();
         finish();

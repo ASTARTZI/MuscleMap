@@ -2,8 +2,10 @@ package com.example.muscleapp;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -45,6 +47,23 @@ public class ExerciseDetailActivity extends AppCompatActivity {
         View btnEl = findViewById(R.id.btn_el);
         if (btnEn != null) btnEn.setOnClickListener(v -> setLocale("en"));
         if (btnEl != null) btnEl.setOnClickListener(v -> setLocale("el"));
+
+        // Setup Delete button for Admin
+        Button btnDelete = findViewById(R.id.btn_delete_exercise);
+        if (btnDelete != null) {
+            boolean isAdmin = getSharedPreferences("MuscleAppPrefs", MODE_PRIVATE)
+                    .getBoolean("is_admin", false);
+            if (isAdmin) {
+                btnDelete.setVisibility(View.VISIBLE);
+                btnDelete.setOnClickListener(v -> {
+                    dbHandler.deleteExerciseByImageName(imageName);
+                    Toast.makeText(this, "Exercise deleted", Toast.LENGTH_SHORT).show();
+                    finish(); // Go back to the list
+                });
+            } else {
+                btnDelete.setVisibility(View.GONE);
+            }
+        }
 
         // Get initial data from intent
         imageName = getIntent().getStringExtra("EXERCISE_IMAGE");
@@ -90,14 +109,25 @@ public class ExerciseDetailActivity extends AppCompatActivity {
             
             muscleTV.setText(getString(R.string.muscle_group_prefix) + translatedGroups.toString());
 
-            // Load Image
-            int resId = getResources().getIdentifier(exercise.getImageName(), "drawable", getPackageName());
-            if (resId != 0) {
+            // Load Image (supporting both URIs and Drawables)
+            String img = exercise.getImageName();
+            if (img.startsWith("content://") || img.startsWith("file://")) {
                 Glide.with(this)
-                        .load(resId)
+                        .load(img)
                         .placeholder(R.drawable.ic_placeholder)
                         .fitCenter()
                         .into(imgV);
+            } else {
+                int resId = getResources().getIdentifier(img, "drawable", getPackageName());
+                if (resId != 0) {
+                    Glide.with(this)
+                            .load(resId)
+                            .placeholder(R.drawable.ic_placeholder)
+                            .fitCenter()
+                            .into(imgV);
+                } else {
+                    imgV.setImageResource(R.drawable.ic_placeholder);
+                }
             }
         }
     }

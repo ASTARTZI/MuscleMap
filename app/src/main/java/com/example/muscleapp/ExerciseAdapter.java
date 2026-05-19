@@ -39,18 +39,26 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.ViewHo
         Exercise exercise = exercises.get(position);
         holder.textTitle.setText(exercise.getTitle());
         
-        // Resolve resource ID from name string
-        int resId = context.getResources().getIdentifier(exercise.getImageName(), "drawable", context.getPackageName());
-        
-        if (resId != 0) {
-            // Use Glide to load the image/GIF and ensure it zooms/fills correctly
+        String img = exercise.getImageName();
+        if (img.startsWith("content://") || img.startsWith("file://")) {
+            // Load from device storage
             Glide.with(context)
-                .load(resId)
+                .load(img)
                 .placeholder(R.drawable.ic_placeholder)
-                .fitCenter() // Changed from centerCrop to avoid head cropping
+                .fitCenter()
                 .into(holder.imageView);
         } else {
-            holder.imageView.setImageResource(R.drawable.ic_placeholder);
+            // Resolve resource ID from name string
+            int resId = context.getResources().getIdentifier(img, "drawable", context.getPackageName());
+            if (resId != 0) {
+                Glide.with(context)
+                    .load(resId)
+                    .placeholder(R.drawable.ic_placeholder)
+                    .fitCenter()
+                    .into(holder.imageView);
+            } else {
+                holder.imageView.setImageResource(R.drawable.ic_placeholder);
+            }
         }
 
         // Set click listener to open detail activity
