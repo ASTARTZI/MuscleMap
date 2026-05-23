@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Material "fitness_center" / person icon representing muscles -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Head -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M12,2 C13.1,2 14,2.9 14,4 C14,5.1 13.1,6 12,6 C10.9,6 10,5.1 10,4 C10,2.9 10.9,2 12,2Z" />
+    <!-- Body -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M15,7 L9,7 C8.45,7 8,7.45 8,8 L8,14 C8,14.55 8.45,15 9,15 L9,22 L11,22 L11,16 L13,16 L13,22 L15,22 L15,15 C15.55,15 16,14.55 16,14 L16,8 C16,7.45 15.55,7 15,7Z" />
+    <!-- Left arm -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M7,8 L5,8 C4.45,8 4,8.45 4,9 L4,13 C4,13.55 4.45,14 5,14 L7,14Z" />
+    <!-- Right arm -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M17,8 L19,8 C19.55,8 20,8.45 20,9 L20,13 C20,13.55 19.55,14 19,14 L17,14Z" />
+</vector>

@@ -1,19 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/exercises"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/exercises"
     android:background="@color/black">
 
-    <!-- Top bar for Add button -->
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <!-- Top bar: Language buttons + Add button -->
+    <LinearLayout
         android:id="@+id/top_row"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="16dp"
         app:layout_constraintTop_toTopOf="parent">
 
+        <!-- Spacer to push Add button to the right -->
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <!-- Add exercise button (from Version 1, initially hidden) -->
         <Button
             android:id="@+id/add_exercise_button"
             android:layout_width="48dp"
@@ -23,14 +34,10 @@
             android:textSize="24sp"
             android:textStyle="bold"
             android:visibility="gone"
-            app:backgroundTint="@color/red"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:backgroundTint="@color/red" />
+    </LinearLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <!-- Search bar and Filter -->
+    <!-- Search bar and filter button (from Version 1) -->
     <LinearLayout
         android:id="@+id/search_bar_layout"
         android:layout_width="match_parent"
@@ -62,13 +69,16 @@
             app:tint="@color/white" />
     </LinearLayout>
 
+    <!-- RecyclerView for exercise list -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_exercises"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         android:clipToPadding="false"
         android:padding="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/search_bar_layout" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

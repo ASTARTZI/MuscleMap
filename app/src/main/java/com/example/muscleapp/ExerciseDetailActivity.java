@@ -89,11 +89,11 @@ public class ExerciseDetailActivity extends AppCompatActivity {
         if (exercise != null) {
             titleTV.setText(exercise.getTitle());
             descTV.setText(exercise.getDescription());
-            
+
             // Translate multiple muscle groups
             String muscleGroupsRaw = exercise.getMuscleGroup();
             StringBuilder translatedGroups = new StringBuilder();
-            
+
             if (muscleGroupsRaw != null) {
                 String[] groups = muscleGroupsRaw.split(",");
                 for (int i = 0; i < groups.length; i++) {
@@ -106,7 +106,7 @@ public class ExerciseDetailActivity extends AppCompatActivity {
                     }
                 }
             }
-            
+
             muscleTV.setText(getString(R.string.muscle_group_prefix) + translatedGroups.toString());
 
             // Load Image (supporting both URIs and Drawables)

@@ -52,14 +52,14 @@ public class ExerciseDBHandler extends SQLiteOpenHelper {
     public List<Exercise> getExercisesByMuscleGroup(String muscleGroup, String lang) {
         List<Exercise> list = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        
+
         // Use LIKE query to support comma-separated muscle groups
-        String selection = "(" + COLUMN_MUSCLE_GROUP + " = ? OR " + 
-                          COLUMN_MUSCLE_GROUP + " LIKE ? OR " + 
-                          COLUMN_MUSCLE_GROUP + " LIKE ? OR " + 
-                          COLUMN_MUSCLE_GROUP + " LIKE ?) AND " + 
-                          COLUMN_LANGUAGE + " = ?";
-        
+        String selection = "(" + COLUMN_MUSCLE_GROUP + " = ? OR " +
+                COLUMN_MUSCLE_GROUP + " LIKE ? OR " +
+                COLUMN_MUSCLE_GROUP + " LIKE ? OR " +
+                COLUMN_MUSCLE_GROUP + " LIKE ?) AND " +
+                COLUMN_LANGUAGE + " = ?";
+
         String[] selectionArgs = new String[]{
                 muscleGroup,
                 muscleGroup + ",%",   // At the start

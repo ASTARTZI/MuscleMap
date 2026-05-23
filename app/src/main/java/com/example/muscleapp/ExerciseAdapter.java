@@ -38,24 +38,24 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.ViewHo
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Exercise exercise = exercises.get(position);
         holder.textTitle.setText(exercise.getTitle());
-        
+
         String img = exercise.getImageName();
         if (img.startsWith("content://") || img.startsWith("file://")) {
             // Load from device storage
             Glide.with(context)
-                .load(img)
-                .placeholder(R.drawable.ic_placeholder)
-                .fitCenter()
-                .into(holder.imageView);
+                    .load(img)
+                    .placeholder(R.drawable.ic_placeholder)
+                    .fitCenter()
+                    .into(holder.imageView);
         } else {
             // Resolve resource ID from name string
             int resId = context.getResources().getIdentifier(img, "drawable", context.getPackageName());
             if (resId != 0) {
                 Glide.with(context)
-                    .load(resId)
-                    .placeholder(R.drawable.ic_placeholder)
-                    .fitCenter()
-                    .into(holder.imageView);
+                        .load(resId)
+                        .placeholder(R.drawable.ic_placeholder)
+                        .fitCenter()
+                        .into(holder.imageView);
             } else {
                 holder.imageView.setImageResource(R.drawable.ic_placeholder);
             }
