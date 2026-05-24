@@ -27,20 +27,19 @@ public class MainActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-        // Apply system bar insets to root layout (from Version 1)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
-        // Language buttons
+        // Setup language buttons
         View btnEn = findViewById(R.id.btn_en);
         View btnEl = findViewById(R.id.btn_el);
         if (btnEn != null) btnEn.setOnClickListener(v -> setLocale("en"));
         if (btnEl != null) btnEl.setOnClickListener(v -> setLocale("el"));
 
-        // Muscle group buttons
+        // Setup muscle group buttons
         setupButton(R.id.chest_button, "chest");
         setupButton(R.id.arm_button, "arm");
         setupButton(R.id.legs_button, "legs");
@@ -48,12 +47,11 @@ public class MainActivity extends AppCompatActivity {
         setupButton(R.id.back_button, "back");
         setupButton(R.id.abs_button, "abs");
 
-        // Logout button (from Version 1, with admin flag cleanup)
+        // Logout button
         Button logoutBtn = findViewById(R.id.logout_button);
         if (logoutBtn != null) {
             logoutBtn.setOnClickListener(v -> {
                 FirebaseAuth.getInstance().signOut();
-                // Clear admin status on logout
                 getSharedPreferences("MuscleAppPrefs", MODE_PRIVATE)
                         .edit()
                         .putBoolean("is_admin", false)
@@ -66,25 +64,21 @@ public class MainActivity extends AppCompatActivity {
             });
         }
 
-        // Bottom navigation (from Version 2)
+        // Bottom navigation
         BottomNavigationView bottomNav = findViewById(R.id.bottom_nav);
         if (bottomNav != null) {
             bottomNav.setSelectedItemId(R.id.nav_home);
-            bottomNav.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
-                @Override
-                public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                    int id = item.getItemId();
-                    if (id == R.id.nav_program) {
-                        startActivity(new Intent(MainActivity.this, GymProgramActivity.class));
-                        return true;
-                    }
-                    if (id == R.id.nav_online_programs) {
-                        startActivity(new Intent(MainActivity.this, OnlineActivity.class));
-                        return true;
-                    }
-                    // nav_home: already here
+            bottomNav.setOnItemSelectedListener(item -> {
+                int id = item.getItemId();
+                if (id == R.id.nav_program) {
+                    startActivity(new Intent(MainActivity.this, GymProgramActivity.class));
                     return true;
                 }
+                if (id == R.id.nav_online_programs) {
+                    startActivity(new Intent(MainActivity.this, OnlineActivity.class));
+                    return true;
+                }
+                return true;
             });
         }
     }

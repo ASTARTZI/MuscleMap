@@ -16,6 +16,10 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
     private EditText loginemail;
@@ -84,30 +88,24 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        // Check for local hardcoded admin
-        if (email.equals("admin@gmail.com") && password.equals("admin")) {
-            // Save admin status in SharedPreferences
-            getSharedPreferences("MuscleAppPrefs", MODE_PRIVATE)
-                    .edit()
-                    .putBoolean("is_admin", true)
-                    .apply();
-
-            Toast.makeText(this, "Welcome Admin", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            startActivity(intent);
-            finish();
-            return;
-        }
-
         mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                // Not admin
+                boolean isAdmin = email.equalsIgnoreCase("admin@gmail.com") && password.equals("admin");
+                
+                // Sync user to Firestore
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                Map<String, Object> user = new HashMap<>();
+                user.put("email", email);
+                user.put("uid", mAuth.getCurrentUser().getUid());
+                db.collection("users").document(mAuth.getCurrentUser().getUid()).set(user);
+
+                // Save admin status in SharedPreferences
                 getSharedPreferences("MuscleAppPrefs", MODE_PRIVATE)
                         .edit()
-                        .putBoolean("is_admin", false)
+                        .putBoolean("is_admin", isAdmin)
                         .apply();
 
-                Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Login Successful" + (isAdmin ? " (Admin)" : ""), Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 startActivity(intent);
                 finish();
