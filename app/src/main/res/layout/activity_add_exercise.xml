@@ -59,17 +59,27 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/muscle_group_hint"
+                android:text="@string/muscle_group"
                 android:textColor="@color/white"
                 android:layout_marginTop="8dp"/>
 
+            <Spinner
+                android:id="@+id/add_muscle_spinner"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="#2C2C2C"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:layout_marginTop="4dp"/>
+
             <EditText
-                android:id="@+id/add_muscle_group"
+                android:id="@+id/add_tags"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/muscle_group_example"
+                android:hint="@string/tags_hint"
                 android:textColor="@color/white"
-                android:textColorHint="@android:color/darker_gray" />
+                android:textColorHint="@android:color/darker_gray"
+                android:layout_marginTop="8dp" />
 
             <TextView
                 android:layout_width="match_parent"

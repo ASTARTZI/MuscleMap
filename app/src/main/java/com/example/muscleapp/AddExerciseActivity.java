@@ -1,11 +1,12 @@
 package com.example.muscleapp;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,10 +22,15 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class AddExerciseActivity extends AppCompatActivity {
 
-    private EditText etTitle, etDesc, etMuscleGroup;
+    private EditText etTitle, etDesc, etTags;
+    private Spinner muscleSpinner;
     private TextView tvImagePath;
     private ExerciseDBHandler dbHandler;
     private String selectedImageUri = "";
+
+    private static final String[] MUSCLE_KEYS = {
+            "chest", "arm", "legs", "shoulders", "back", "abs"
+    };
 
     private final ActivityResultLauncher<String> imagePickerLauncher = registerForActivityResult(
             new ActivityResultContracts.GetContent(),
@@ -58,9 +64,12 @@ public class AddExerciseActivity extends AppCompatActivity {
 
         etTitle = findViewById(R.id.add_title);
         etDesc = findViewById(R.id.add_desc);
-        etMuscleGroup = findViewById(R.id.add_muscle_group);
+        etTags = findViewById(R.id.add_tags);
+        muscleSpinner = findViewById(R.id.add_muscle_spinner);
         tvImagePath = findViewById(R.id.tv_image_path);
         
+        setupMuscleSpinner();
+
         Button btnPick = findViewById(R.id.btn_pick_image);
         btnPick.setOnClickListener(v -> imagePickerLauncher.launch("image/*"));
 
@@ -68,17 +77,32 @@ public class AddExerciseActivity extends AppCompatActivity {
         btnSave.setOnClickListener(v -> saveExercise());
     }
 
-    private void setLocale(String lang) {
-        LocaleListCompat appLocales = LocaleListCompat.forLanguageTags(lang);
-        AppCompatDelegate.setApplicationLocales(appLocales);
+    private void setupMuscleSpinner() {
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this, R.layout.spinner_item, buildMuscleLabels());
+        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        muscleSpinner.setAdapter(adapter);
+    }
+
+    private String[] buildMuscleLabels() {
+        String[] labels = new String[MUSCLE_KEYS.length];
+        for (int i = 0; i < MUSCLE_KEYS.length; i++) {
+            int resId = getResources().getIdentifier(MUSCLE_KEYS[i], "string", getPackageName());
+            labels[i] = resId != 0 ? getString(resId) : MUSCLE_KEYS[i];
+        }
+        return labels;
     }
 
     private void saveExercise() {
         String title = etTitle.getText().toString().trim();
         String desc = etDesc.getText().toString().trim();
-        String muscleGroup = etMuscleGroup.getText().toString().trim();
+        String tags = etTags.getText().toString().trim();
+        
+        int selectedPos = muscleSpinner.getSelectedItemPosition();
+        if (selectedPos < 0) return;
+        String muscleGroup = MUSCLE_KEYS[selectedPos];
 
-        if (title.isEmpty() || desc.isEmpty() || muscleGroup.isEmpty()) {
+        if (title.isEmpty() || desc.isEmpty()) {
             Toast.makeText(this, R.string.mandatory_fields_error, Toast.LENGTH_SHORT).show();
             return;
         }
@@ -87,9 +111,8 @@ public class AddExerciseActivity extends AppCompatActivity {
         String finalImage = selectedImageUri.isEmpty() ? "ic_placeholder" : selectedImageUri;
 
         // Auto-translate logic: Saving the same English text for both language versions
-        // In a real app, you would call a translation API here.
-        dbHandler.addExercise(title, desc, muscleGroup, finalImage, "en", "");
-        dbHandler.addExercise(title, desc, muscleGroup, finalImage, "el", "");
+        dbHandler.addExercise(title, desc, muscleGroup, finalImage, "en", tags);
+        dbHandler.addExercise(title, desc, muscleGroup, finalImage, "el", tags);
 
         Toast.makeText(this, R.string.exercise_added_success, Toast.LENGTH_SHORT).show();
         finish();

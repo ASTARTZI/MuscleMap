@@ -76,10 +76,11 @@
     <string name="description_hint">Description - ~10 lines</string>
     <string name="muscle_group_hint">Muscle Group (e.g. chest, arm, legs, shoulders, back, abs)</string>
     <string name="muscle_group_example">e.g. chest</string>
+    <string name="tags_hint">Tags (e.g. compound, isolation, upper chest)</string>
     <string name="image_gif_optional">Image or GIF (Optional)</string>
     <string name="pick_from_device">Pick from device</string>
     <string name="no_image_selected">No image selected</string>
     <string name="save_exercise">Save Exercise</string>
     <string name="exercise_added_success">Exercise added successfully!</string>
-    <string name="mandatory_fields_error">Title, Description and Muscle Group are mandatory</string>
+    <string name="mandatory_fields_error">Title and Description are mandatory</string>
 </resources>

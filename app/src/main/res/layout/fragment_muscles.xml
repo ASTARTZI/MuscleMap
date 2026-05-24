@@ -75,9 +75,7 @@
         app:layout_constraintTop_toBottomOf="@+id/lang_layout"
         app:srcCompat="@drawable/male_front_with_arrows_no_bg" />
 
-    <!-- Chest button – Version 1 constraints (precise bias) -->
-
-    <!-- Shoulder button – from Version 2 -->
+    <!-- Muscle Group Buttons -->
     <Button
         android:id="@+id/chest_button"
         android:layout_width="wrap_content"
@@ -93,7 +91,6 @@
         app:layout_constraintTop_toTopOf="@+id/imageView3"
         app:layout_constraintVertical_bias="0.146" />
 
-    <!-- Arm button – Version 1 constraints (precise bias) -->
     <Button
         android:id="@+id/shoulders_button"
         android:layout_width="wrap_content"
@@ -110,7 +107,6 @@
         app:layout_constraintTop_toTopOf="@+id/imageView3"
         app:layout_constraintVertical_bias="0.14999998" />
 
-    <!-- Back button – from Version 2 -->
     <Button
         android:id="@+id/arm_button"
         android:layout_width="wrap_content"
@@ -126,7 +122,6 @@
         app:layout_constraintTop_toTopOf="@+id/imageView3"
         app:layout_constraintVertical_bias="0.36" />
 
-    <!-- Legs button – from Version 2 -->
     <Button
         android:id="@+id/back_button"
         android:layout_width="wrap_content"
@@ -143,7 +138,6 @@
         app:layout_constraintTop_toTopOf="@+id/imageView3"
         app:layout_constraintVertical_bias="0.36" />
 
-    <!-- Abs button – from Version 2 -->
     <Button
         android:id="@+id/legs_button"
         android:layout_width="wrap_content"
@@ -160,7 +154,6 @@
         app:layout_constraintTop_toTopOf="@+id/imageView3"
         app:layout_constraintVertical_bias="0.686" />
 
-    <!-- Footer (above bottom nav) – from Version 2 -->
     <Button
         android:id="@+id/abs_button"
         android:layout_width="wrap_content"
@@ -188,6 +181,20 @@
         android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/add_exercise_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:src="@android:drawable/ic_input_add"
+        android:contentDescription="@string/add_exercise"
+        app:backgroundTint="@color/red"
+        app:tint="@color/white"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

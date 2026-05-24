@@ -42,6 +42,22 @@ public class MusclesFragment extends Fragment {
         setupButton(view, R.id.back_button, "back");
         setupButton(view, R.id.abs_button, "abs");
 
+        // Add exercise button (Admin only)
+        View addBtn = view.findViewById(R.id.add_exercise_button);
+        if (addBtn != null) {
+            boolean isAdmin = view.getContext().getSharedPreferences("MuscleAppPrefs", Context.MODE_PRIVATE)
+                    .getBoolean("is_admin", false);
+            if (isAdmin) {
+                addBtn.setVisibility(View.VISIBLE);
+                addBtn.setOnClickListener(v -> {
+                    Intent intent = new Intent(getActivity(), AddExerciseActivity.class);
+                    startActivity(intent);
+                });
+            } else {
+                addBtn.setVisibility(View.GONE);
+            }
+        }
+
         // Logout button
         Button logoutBtn = view.findViewById(R.id.logout_button);
         if (logoutBtn != null) {

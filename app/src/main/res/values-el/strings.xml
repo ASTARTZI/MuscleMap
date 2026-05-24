@@ -76,10 +76,11 @@
     <string name="description_hint">Περιγραφή - ~10 γραμμές</string>
     <string name="muscle_group_hint">Μυϊκή Ομάδα (π.χ. chest, arm, legs, shoulders, back, abs)</string>
     <string name="muscle_group_example">π.χ. chest</string>
+    <string name="tags_hint">Ετικέτες (π.χ. compound, isolation, upper chest)</string>
     <string name="image_gif_optional">Εικόνα ή GIF (Προαιρετικό)</string>
     <string name="pick_from_device">Επιλογή από τη συσκευή</string>
     <string name="no_image_selected">Δεν επιλέχθηκε εικόνα</string>
     <string name="save_exercise">Αποθήκευση Άσκησης</string>
     <string name="exercise_added_success">Η άσκηση προστέθηκε με επιτυχία!</string>
-    <string name="mandatory_fields_error">Ο Τίτλος, η Περιγραφή και η Μυϊκή Ομάδα είναι υποχρεωτικά</string>
+    <string name="mandatory_fields_error">Ο Τίτλος και η Περιγραφή είναι υποχρεωτικά</string>
 </resources>

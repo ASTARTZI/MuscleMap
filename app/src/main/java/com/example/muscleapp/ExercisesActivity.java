@@ -71,22 +71,6 @@ public class ExercisesActivity extends AppCompatActivity {
             reloadExercises();
         });
 
-        // Show Add button only for Admin (from Version 1)
-        Button addBtn = findViewById(R.id.add_exercise_button);
-        if (addBtn != null) {
-            boolean isAdmin = getSharedPreferences("MuscleAppPrefs", MODE_PRIVATE)
-                    .getBoolean("is_admin", false);
-            if (isAdmin) {
-                addBtn.setVisibility(View.VISIBLE);
-                addBtn.setOnClickListener(v -> {
-                    Intent addIntent = new Intent(this, AddExerciseActivity.class);
-                    startActivity(addIntent);
-                });
-            } else {
-                addBtn.setVisibility(View.GONE);
-            }
-        }
-
         // Initial load of exercises
         reloadExercises();
 
