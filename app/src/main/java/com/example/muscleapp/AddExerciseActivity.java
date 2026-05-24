@@ -79,7 +79,7 @@ public class AddExerciseActivity extends AppCompatActivity {
         String muscleGroup = etMuscleGroup.getText().toString().trim();
 
         if (title.isEmpty() || desc.isEmpty() || muscleGroup.isEmpty()) {
-            Toast.makeText(this, "Title, Description and Muscle Group are mandatory", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.mandatory_fields_error, Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -91,7 +91,7 @@ public class AddExerciseActivity extends AppCompatActivity {
         dbHandler.addExercise(title, desc, muscleGroup, finalImage, "en", "");
         dbHandler.addExercise(title, desc, muscleGroup, finalImage, "el", "");
 
-        Toast.makeText(this, "Exercise added successfully!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, R.string.exercise_added_success, Toast.LENGTH_SHORT).show();
         finish();
     }
 }

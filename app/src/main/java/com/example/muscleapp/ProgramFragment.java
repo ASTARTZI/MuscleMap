@@ -50,7 +50,6 @@ public class ProgramFragment extends Fragment {
 
         recyclerView = view.findViewById(R.id.plan_recycler_view);
         emptyText    = view.findViewById(R.id.plan_empty_text);
-        emptyText.setText("No workouts yet.\nTap + to create one.");
 
         ProgramManager.getInstance().loadProgram(requireContext());
         workoutList = ProgramManager.getInstance().getWorkouts();
@@ -118,7 +117,7 @@ public class ProgramFragment extends Fragment {
         addBtn.setOnClickListener(v -> {
             String name = nameET.getText().toString().trim();
             if (name.isEmpty()) {
-                Toast.makeText(requireContext(), "Please enter a name", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), R.string.enter_name_error, Toast.LENGTH_SHORT).show();
                 return;
             }
             workoutList.add(new Workout(name));
@@ -142,18 +141,20 @@ public class ProgramFragment extends Fragment {
             );
         }
 
+        TextView titleTV = dialog.findViewById(R.id.dialog_workout_title);
         EditText nameET = dialog.findViewById(R.id.dialog_workout_name);
         Button cancelBtn = dialog.findViewById(R.id.dialog_cancel_btn);
         Button addBtn = dialog.findViewById(R.id.dialog_add_btn);
 
+        titleTV.setText(R.string.update_workout);
         nameET.setText(workout.getName());
-        addBtn.setText("Update");
+        addBtn.setText(R.string.update);
 
         cancelBtn.setOnClickListener(v -> dialog.dismiss());
         addBtn.setOnClickListener(v -> {
             String name = nameET.getText().toString().trim();
             if (name.isEmpty()) {
-                Toast.makeText(requireContext(), "Please enter a name", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), R.string.enter_name_error, Toast.LENGTH_SHORT).show();
                 return;
             }
             workout.setName(name);
@@ -167,7 +168,7 @@ public class ProgramFragment extends Fragment {
 
     private void showShareSelectionDialog() {
         if (workoutList.isEmpty()) {
-            Toast.makeText(requireContext(), "No workouts to share", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), R.string.no_workouts_to_share, Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -218,7 +219,7 @@ public class ProgramFragment extends Fragment {
                 }
             }
             if (selected.isEmpty()) {
-                Toast.makeText(requireContext(), "Nothing selected", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), R.string.nothing_selected, Toast.LENGTH_SHORT).show();
             } else {
                 shareSelectedWorkouts(selected);
                 dialog.dismiss();
@@ -251,22 +252,22 @@ public class ProgramFragment extends Fragment {
         input.setPadding(24, 24, 24, 24);
 
         new AlertDialog.Builder(requireContext(), R.style.AlertDialogTheme)
-                .setTitle("Import Workouts")
+                .setTitle(R.string.import_workouts)
                 .setView(input)
-                .setPositiveButton("Import", (dlg, which) -> {
+                .setPositiveButton(R.string.import_text, (dlg, which) -> {
                     String code = input.getText().toString().trim();
                     if (!code.isEmpty()) {
                         importAdditively(code);
                     }
                 })
-                .setNegativeButton("Cancel", null)
+                .setNegativeButton(R.string.cancel, null)
                 .show();
     }
 
     private void importAdditively(String json) {
         List<Workout> imported = ProgramManager.getInstance().deserializeWorkouts(json);
         if (imported.isEmpty()) {
-            Toast.makeText(requireContext(), "Invalid or empty code", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), R.string.invalid_code_error, Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -284,6 +285,6 @@ public class ProgramFragment extends Fragment {
         adapter.notifyDataSetChanged();
         updateEmptyState();
         ProgramManager.getInstance().saveProgram(requireContext());
-        Toast.makeText(requireContext(), imported.size() + " workout(s) imported", Toast.LENGTH_SHORT).show();
+        Toast.makeText(requireContext(), getString(R.string.workouts_imported, imported.size()), Toast.LENGTH_SHORT).show();
     }
 }

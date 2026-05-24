@@ -177,7 +177,7 @@ public class ExercisesActivity extends AppCompatActivity {
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Filter by Tags");
+        builder.setTitle(R.string.filter_description);
         builder.setMultiChoiceItems(allTags, checkedItems, (dialog, which, isChecked) -> {
             if (isChecked) {
                 selectedTags.add(allTags[which]);
@@ -185,8 +185,8 @@ public class ExercisesActivity extends AppCompatActivity {
                 selectedTags.remove(allTags[which]);
             }
         });
-        builder.setPositiveButton("Apply", (dialog, which) -> applyFilters());
-        builder.setNegativeButton("Clear All", (dialog, which) -> {
+        builder.setPositiveButton(R.string.apply, (dialog, which) -> applyFilters());
+        builder.setNegativeButton(R.string.clear_all, (dialog, which) -> {
             selectedTags.clear();
             applyFilters();
         });

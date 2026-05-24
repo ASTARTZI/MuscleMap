@@ -25,7 +25,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="My Program"
+            android:text="@string/my_program"
             android:textColor="@color/white"
             android:textSize="20sp"
             android:textStyle="bold"
@@ -37,7 +37,7 @@
             android:layout_height="44dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@android:drawable/ic_menu_share"
-            android:contentDescription="Share Program"
+            android:contentDescription="@string/share"
             app:tint="@color/white" />
 
         <ImageButton
@@ -46,14 +46,14 @@
             android:layout_height="44dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@android:drawable/ic_menu_add"
-            android:contentDescription="Import Program"
+            android:contentDescription="@string/import_text"
             app:tint="@color/white" />
 
         <Button
             android:id="@+id/btn_save_online"
             android:layout_width="wrap_content"
             android:layout_height="36dp"
-            android:text="Save Online"
+            android:text="@string/save_online"
             android:textSize="10sp"
             app:backgroundTint="@color/red"
             android:textColor="@color/white"
@@ -76,7 +76,7 @@
         android:id="@+id/plan_empty_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="No exercises yet.\nTap + to add one."
+        android:text="@string/empty_program_hint"
         android:textColor="@android:color/darker_gray"
         android:textSize="16sp"
         android:fontFamily="serif"

@@ -97,22 +97,20 @@ public class WorkoutDetailActivity extends AppCompatActivity {
             );
         }
 
-        TextView header = dialog.findViewById(dialog.getContext().getResources().getIdentifier("textView", "id", getPackageName())); 
-        // Note: The above is a bit brittle, but dialog_add_workout has its first TextView without an ID.
-        // It's better to just find it by position if we can't give it an ID easily without breaking things.
-        
+        TextView dialogTitleTV = dialog.findViewById(R.id.dialog_workout_title);
         EditText nameET = dialog.findViewById(R.id.dialog_workout_name);
         Button cancelBtn = dialog.findViewById(R.id.dialog_cancel_btn);
         Button addBtn = dialog.findViewById(R.id.dialog_add_btn);
 
+        dialogTitleTV.setText(R.string.update_workout);
         nameET.setText(workout.getName());
-        addBtn.setText("Update");
+        addBtn.setText(R.string.update);
         
         cancelBtn.setOnClickListener(v -> dialog.dismiss());
         addBtn.setOnClickListener(v -> {
             String newName = nameET.getText().toString().trim();
             if (newName.isEmpty()) {
-                Toast.makeText(this, "Please enter a name", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.enter_name_error, Toast.LENGTH_SHORT).show();
                 return;
             }
             workout.setName(newName);
@@ -191,7 +189,7 @@ public class WorkoutDetailActivity extends AppCompatActivity {
         addBtn.setOnClickListener(v -> {
             int exPos = exerciseSpinner.getSelectedItemPosition();
             if (exercisesRef[0] == null || exercisesRef[0].isEmpty() || exPos < 0) {
-                Toast.makeText(this, "Please select an exercise", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.nothing_selected, Toast.LENGTH_SHORT).show();
                 return;
             }
             Exercise chosen = exercisesRef[0].get(exPos);

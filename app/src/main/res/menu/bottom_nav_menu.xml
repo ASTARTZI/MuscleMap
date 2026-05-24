@@ -4,16 +4,16 @@
     <item
         android:id="@+id/nav_home"
         android:icon="@drawable/ic_nav_muscles"
-        android:title="Muscles" />
+        android:title="@string/nav_muscles" />
 
     <item
         android:id="@+id/nav_program"
         android:icon="@drawable/ic_nav_program"
-        android:title="Program" />
+        android:title="@string/nav_program" />
 
     <item
         android:id="@+id/nav_online_programs"
         android:icon="@drawable/ic_nav_online"
-        android:title="Online" />
+        android:title="@string/nav_online" />
 
 </menu>

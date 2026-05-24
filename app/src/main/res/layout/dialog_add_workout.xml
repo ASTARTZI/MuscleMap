@@ -9,9 +9,10 @@
     android:padding="20dp">
 
     <TextView
+        android:id="@+id/dialog_workout_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Add Workout"
+        android:text="@string/add_workout"
         android:textColor="@color/red"
         android:textAlignment="center"
         android:textSize="20sp"
@@ -20,9 +21,10 @@
         android:layout_marginBottom="16dp" />
 
     <TextView
+        android:id="@+id/dialog_workout_label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Workout Title"
+        android:text="@string/workout_title"
         android:textColor="@android:color/darker_gray"
         android:textSize="12sp"
         android:fontFamily="serif"
@@ -35,7 +37,7 @@
         android:background="#2C2C2C"
         android:paddingStart="12dp"
         android:paddingEnd="12dp"
-        android:hint="e.g. Chest Day"
+        android:hint="@string/workout_title_hint"
         android:textColor="@color/white"
         android:textColorHint="@android:color/darker_gray"
         android:layout_marginBottom="24dp" />
@@ -52,7 +54,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginEnd="8dp"
-            android:text="Cancel"
+            android:text="@string/cancel"
             android:fontFamily="serif"
             android:textColor="@color/white"
             app:backgroundTint="#2C2C2C" />
@@ -63,7 +65,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="8dp"
-            android:text="Add"
+            android:text="@string/add"
             android:fontFamily="serif"
             android:textColor="@color/white"
             app:backgroundTint="@color/red" />

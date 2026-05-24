@@ -9,7 +9,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Select Workouts to Share"
+        android:text="@string/select_workouts_to_share"
         android:textColor="@color/white"
         android:textSize="20sp"
         android:textStyle="bold"
@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginEnd="4dp"
-            android:text="Select All"
+            android:text="@string/select_all"
             android:textSize="12sp"
             android:backgroundTint="#2C2C2C"
             android:textColor="@color/white" />
@@ -41,7 +41,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="4dp"
-            android:text="Deselect All"
+            android:text="@string/deselect_all"
             android:textSize="12sp"
             android:backgroundTint="#2C2C2C"
             android:textColor="@color/white" />
@@ -66,7 +66,7 @@
             android:id="@+id/btn_share_cancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Cancel"
+            android:text="@string/cancel"
             android:backgroundTint="@android:color/transparent"
             android:textColor="@color/white" />
 
@@ -74,7 +74,7 @@
             android:id="@+id/btn_share_confirm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Share"
+            android:text="@string/share"
             android:backgroundTint="@color/red"
             android:textColor="@color/white" />
     </LinearLayout>
