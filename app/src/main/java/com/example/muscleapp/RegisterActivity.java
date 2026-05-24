@@ -16,6 +16,9 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class RegisterActivity extends AppCompatActivity {
@@ -88,6 +91,14 @@ public class RegisterActivity extends AppCompatActivity {
         }
         mAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener(task -> {
             if(task.isSuccessful()){
+                // Save user to Firestore for searching
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                Map<String, Object> user = new HashMap<>();
+                user.put("email", email);
+                user.put("uid", mAuth.getCurrentUser().getUid());
+                
+                db.collection("users").document(mAuth.getCurrentUser().getUid()).set(user);
+
                 // Not admin
                 getSharedPreferences("MuscleAppPrefs", MODE_PRIVATE)
                         .edit()

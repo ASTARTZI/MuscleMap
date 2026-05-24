@@ -12,6 +12,7 @@ glide = "4.16.0"
 activityKtx = "1.8.0"
 googleGmsGoogleServices = "4.4.4"
 firebaseAuth = "24.0.1"
+firebaseFirestore = "25.0.0"
 credentials = "1.6.0"
 credentialsPlayServicesAuth = "1.6.0"
 googleid = "1.2.0"
@@ -28,6 +29,7 @@ cardview = { group = "androidx.cardview", name = "cardview", version.ref = "card
 glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
 activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "activityKtx" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
+firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
 credentials = { group = "androidx.credentials", name = "credentials", version.ref = "credentials" }
 credentials-play-services-auth = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "credentialsPlayServicesAuth" }
 googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "googleid" }
