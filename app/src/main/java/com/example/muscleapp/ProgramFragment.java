@@ -77,6 +77,7 @@ public class ProgramFragment extends Fragment {
 
         view.findViewById(R.id.btn_share_program).setOnClickListener(v -> showShareSelectionDialog());
         view.findViewById(R.id.btn_import_program).setOnClickListener(v -> showImportDialog());
+        view.findViewById(R.id.btn_save_online).setOnClickListener(v -> showPublishSelectionDialog());
     }
 
     @Override
@@ -182,6 +183,9 @@ public class ProgramFragment extends Fragment {
             );
         }
 
+        TextView shareTitleTV = dialog.findViewById(R.id.dialog_share_title);
+        shareTitleTV.setText(R.string.select_workouts_to_share);
+
         ListView listView = dialog.findViewById(R.id.share_list_view);
         Button btnSelectAll = dialog.findViewById(R.id.btn_select_all);
         Button btnDeselectAll = dialog.findViewById(R.id.btn_deselect_all);
@@ -227,6 +231,92 @@ public class ProgramFragment extends Fragment {
         });
 
         dialog.show();
+    }
+
+    private void showPublishSelectionDialog() {
+        if (workoutList.isEmpty()) {
+            Toast.makeText(requireContext(), R.string.no_workouts_to_share, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Dialog dialog = new Dialog(requireContext());
+        dialog.setContentView(R.layout.dialog_share_selection);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            dialog.getWindow().setLayout(
+                    (int) (getResources().getDisplayMetrics().widthPixels * 0.92),
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+            );
+        }
+
+        TextView titleTV = dialog.findViewById(R.id.dialog_share_title);
+        titleTV.setText(R.string.select_workouts_to_publish);
+
+        ListView listView = dialog.findViewById(R.id.share_list_view);
+        Button btnSelectAll = dialog.findViewById(R.id.btn_select_all);
+        Button btnDeselectAll = dialog.findViewById(R.id.btn_deselect_all);
+        Button btnCancel = dialog.findViewById(R.id.btn_share_cancel);
+        Button btnPublish = dialog.findViewById(R.id.btn_share_confirm);
+        btnPublish.setText(R.string.publish);
+
+        String[] workoutNames = new String[workoutList.size()];
+        for (int i = 0; i < workoutList.size(); i++) {
+            workoutNames[i] = workoutList.get(i).getName();
+        }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
+                R.layout.share_list_item, workoutNames);
+        listView.setAdapter(adapter);
+
+        btnSelectAll.setOnClickListener(v -> {
+            for (int i = 0; i < workoutNames.length; i++) {
+                listView.setItemChecked(i, true);
+            }
+        });
+
+        btnDeselectAll.setOnClickListener(v -> {
+            for (int i = 0; i < workoutNames.length; i++) {
+                listView.setItemChecked(i, false);
+            }
+        });
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        btnPublish.setOnClickListener(v -> {
+            List<Workout> selected = new ArrayList<>();
+            for (int i = 0; i < workoutList.size(); i++) {
+                if (listView.isItemChecked(i)) {
+                    selected.add(workoutList.get(i));
+                }
+            }
+            if (selected.isEmpty()) {
+                Toast.makeText(requireContext(), R.string.nothing_selected, Toast.LENGTH_SHORT).show();
+            } else {
+                publishSelectedWorkouts(selected);
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
+    }
+
+    private void publishSelectedWorkouts(List<Workout> selected) {
+        Toast.makeText(requireContext(), R.string.publishing, Toast.LENGTH_SHORT).show();
+        ProgramManager.getInstance().publishWorkouts(selected, new ProgramManager.PublishCallback() {
+            @Override
+            public void onSuccess() {
+                if (isAdded()) {
+                    Toast.makeText(requireContext(), R.string.publish_success, Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(String error) {
+                if (isAdded()) {
+                    Toast.makeText(requireContext(), "Error: " + error, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     private void shareSelectedWorkouts(List<Workout> selected) {

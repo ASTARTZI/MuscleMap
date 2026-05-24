@@ -20,11 +20,17 @@ public class PlanExerciseAdapter extends RecyclerView.Adapter<PlanExerciseAdapte
     private final Context context;
     private final List<ExerciseItem> items;
     private final OnDeleteClickListener deleteClickListener;
+    private boolean isViewOnly = false;
 
     public PlanExerciseAdapter(Context context, List<ExerciseItem> items, OnDeleteClickListener deleteClickListener) {
         this.context = context;
         this.items = items;
         this.deleteClickListener = deleteClickListener;
+    }
+
+    public void setViewOnly(boolean viewOnly) {
+        this.isViewOnly = viewOnly;
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -53,14 +59,19 @@ public class PlanExerciseAdapter extends RecyclerView.Adapter<PlanExerciseAdapte
             holder.imageView.setImageResource(R.drawable.ic_placeholder);
         }
 
-        holder.deleteBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (deleteClickListener != null) {
-                    deleteClickListener.onDeleteClick(holder.getAbsoluteAdapterPosition());
+        if (isViewOnly) {
+            holder.deleteBtn.setVisibility(View.GONE);
+        } else {
+            holder.deleteBtn.setVisibility(View.VISIBLE);
+            holder.deleteBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (deleteClickListener != null) {
+                        deleteClickListener.onDeleteClick(holder.getAbsoluteAdapterPosition());
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     public void addItem(ExerciseItem item) {

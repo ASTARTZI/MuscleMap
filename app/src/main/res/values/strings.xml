@@ -40,7 +40,17 @@
     <string name="deselect_all">Deselect All</string>
     <string name="cancel">Cancel</string>
     <string name="select_workouts_to_share">Select Workouts to Share</string>
+    <string name="select_workouts_to_publish">Select Workouts to Publish</string>
+    <string name="publish">Publish</string>
+    <string name="publishing">Publishing...</string>
+    <string name="publish_success">Workout published successfully!</string>
+    <string name="import_success">Workout added to your program!</string>
+    <string name="add_to_my_program">Add to my Program</string>
+    <string name="exercises_count">Exercises: %d</string>
+    <string name="by_user">by %s</string>
+    <string name="imported_from_online">Imported from Online</string>
     <string name="online_coming_soon">Online Programs Coming Soon!</string>
+    <string name="no_online_workouts">No online workouts yet.</string>
     <string name="import_workouts">Import Workouts</string>
     <string name="add_workout">Add Workout</string>
     <string name="update_workout">Update Workout</string>
@@ -48,6 +58,9 @@
     <string name="workout_title_hint">e.g. Chest Day</string>
     <string name="add">Add</string>
     <string name="update">Update</string>
+    <string name="delete">Delete</string>
+    <string name="delete_online_confirmation">Are you sure you want to delete this workout from the gallery?</string>
+    <string name="delete_success">Deleted successfully</string>
     <string name="add_exercise">Add Exercise</string>
     <string name="muscle_group">Muscle Group</string>
     <string name="exercise">Exercise</string>

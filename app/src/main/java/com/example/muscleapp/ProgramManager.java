@@ -4,17 +4,26 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ProgramManager {
     private static final String BASE_PREF_NAME = "MuscleAppProgram_";
     private static final String KEY_PROGRAM = "program_json";
     private static ProgramManager instance;
     private List<Workout> workouts;
+
+    public interface PublishCallback {
+        void onSuccess();
+        void onFailure(String error);
+    }
 
     private ProgramManager() {
         workouts = new ArrayList<>();
@@ -129,6 +138,35 @@ public class ProgramManager {
         workouts.clear();
         if (json != null) {
             workouts.addAll(deserializeWorkouts(json));
+        }
+    }
+
+    public void publishWorkouts(List<Workout> selectedWorkouts, PublishCallback callback) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            callback.onFailure("User not logged in");
+            return;
+        }
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String userEmail = user.getEmail();
+        String userUid = user.getUid();
+
+        for (Workout workout : selectedWorkouts) {
+            Map<String, Object> data = new HashMap<>();
+            data.put("uploader_email", userEmail);
+            data.put("uploader_uid", userUid);
+            data.put("workout_name", workout.getName());
+            
+            List<Workout> singleList = new ArrayList<>();
+            singleList.add(workout);
+            data.put("workout_json", serializeWorkouts(singleList));
+            data.put("timestamp", FieldValue.serverTimestamp());
+            data.put("exercise_count", workout.getExercises().size());
+
+            db.collection("online_workouts").add(data)
+                    .addOnSuccessListener(documentReference -> callback.onSuccess())
+                    .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
         }
     }
 }

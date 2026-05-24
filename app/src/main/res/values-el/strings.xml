@@ -40,7 +40,17 @@
     <string name="deselect_all">Αποεπιλογή όλων</string>
     <string name="cancel">Ακύρωση</string>
     <string name="select_workouts_to_share">Επιλέξτε προπονήσεις για κοινοποίηση</string>
+    <string name="select_workouts_to_publish">Επιλέξτε προπονήσεις για δημοσίευση</string>
+    <string name="publish">Δημοσίευση</string>
+    <string name="publishing">Δημοσίευση...</string>
+    <string name="publish_success">Η προπόνηση δημοσιεύτηκε με επιτυχία!</string>
+    <string name="import_success">Η προπόνηση προστέθηκε στο πρόγραμμά σας!</string>
+    <string name="add_to_my_program">Προσθήκη στο Πρόγραμμά μου</string>
+    <string name="exercises_count">Ασκήσεις: %d</string>
+    <string name="by_user">από %s</string>
+    <string name="imported_from_online">Εισήχθη από Online</string>
     <string name="online_coming_soon">Σύντομα διαθέσιμα online προγράματα!</string>
+    <string name="no_online_workouts">Δεν υπάρχουν online προπονήσεις ακόμα.</string>
     <string name="import_workouts">Εισαγωγή προπονήσεων</string>
     <string name="add_workout">Προσθήκη Προπόνησης</string>
     <string name="update_workout">Ενημέρωση Προπόνησης</string>
@@ -48,6 +58,9 @@
     <string name="workout_title_hint">π.χ. Chest Day</string>
     <string name="add">Προσθήκη</string>
     <string name="update">Ενημέρωση</string>
+    <string name="delete">Διαγραφή</string>
+    <string name="delete_online_confirmation">Είστε σίγουροι ότι θέλετε να διαγράψετε αυτή την προπόνηση από τη γκαλερί;</string>
+    <string name="delete_success">Διαγράφηκε επιτυχώς</string>
     <string name="add_exercise">Προσθήκη Άσκησης</string>
     <string name="muscle_group">Μυϊκή Ομάδα</string>
     <string name="exercise">Άσκηση</string>

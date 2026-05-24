@@ -47,12 +47,18 @@ public class WorkoutDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_workout_detail);
 
         workoutIndex = getIntent().getIntExtra("WORKOUT_INDEX", -1);
-        if (workoutIndex == -1) {
+        boolean isOnline = getIntent().hasExtra("ONLINE_WORKOUT");
+        boolean viewOnly = getIntent().getBooleanExtra("VIEW_ONLY", false);
+
+        if (isOnline) {
+            workout = (Workout) getIntent().getSerializableExtra("ONLINE_WORKOUT");
+        } else if (workoutIndex != -1) {
+            workout = ProgramManager.getInstance().getWorkouts().get(workoutIndex);
+        } else {
             finish();
             return;
         }
 
-        workout = ProgramManager.getInstance().getWorkouts().get(workoutIndex);
         dbHandler = new ExerciseDBHandler(this);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -65,7 +71,12 @@ public class WorkoutDetailActivity extends AppCompatActivity {
         TextView titleTV = findViewById(R.id.workout_title_text);
         titleTV.setText(workout.getName());
 
-        findViewById(R.id.btn_edit_workout_title).setOnClickListener(v -> showEditTitleDialog(titleTV));
+        View btnEdit = findViewById(R.id.btn_edit_workout_title);
+        if (viewOnly) {
+            btnEdit.setVisibility(View.GONE);
+        } else {
+            btnEdit.setOnClickListener(v -> showEditTitleDialog(titleTV));
+        }
 
         recyclerView = findViewById(R.id.workout_exercise_recycler);
         emptyText = findViewById(R.id.workout_empty_text);
@@ -77,13 +88,21 @@ public class WorkoutDetailActivity extends AppCompatActivity {
             ProgramManager.getInstance().saveProgram(this);
             updateEmptyState();
         });
+        
+        if (viewOnly) {
+            adapter.setViewOnly(true);
+        }
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
         updateEmptyState();
 
         FloatingActionButton fab = findViewById(R.id.fab_add_exercise_to_workout);
-        fab.setOnClickListener(v -> showAddExerciseDialog());
+        if (viewOnly) {
+            fab.setVisibility(View.GONE);
+        } else {
+            fab.setOnClickListener(v -> showAddExerciseDialog());
+        }
     }
 
     private void showEditTitleDialog(TextView titleTV) {
