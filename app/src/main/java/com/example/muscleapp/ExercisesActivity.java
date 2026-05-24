@@ -80,12 +80,18 @@ public class ExercisesActivity extends AppCompatActivity {
         // Setup Search (from Version 1)
         SearchView searchView = findViewById(R.id.search_view);
         if (searchView != null) {
-            searchView.setBackgroundColor(android.graphics.Color.WHITE);
             AutoCompleteTextView searchEditText = searchView.findViewById(androidx.appcompat.R.id.search_src_text);
             if (searchEditText != null) {
-                searchEditText.setTextColor(android.graphics.Color.BLACK);
-                searchEditText.setHintTextColor(android.graphics.Color.GRAY);
+                searchEditText.setTextColor(android.graphics.Color.parseColor("#FFFFFF"));
+                searchEditText.setHintTextColor(android.graphics.Color.parseColor("#E0E0E0"));
             }
+            
+            // Remove the default search plate background (underline)
+            View searchPlate = searchView.findViewById(androidx.appcompat.R.id.search_plate);
+            if (searchPlate != null) {
+                searchPlate.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+            }
+
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
                 public boolean onQueryTextSubmit(String query) {

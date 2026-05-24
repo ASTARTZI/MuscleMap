@@ -23,17 +23,20 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@android:color/white"
-            android:theme="@style/Theme.AppCompat.Light"
+            android:background="@drawable/rounded_red_background"
+            android:theme="@style/Theme.AppCompat"
+            android:paddingHorizontal="8dp"
             app:iconifiedByDefault="false"
-            app:queryHint="@string/search_hint" />
+            app:queryHint="@string/search_hint"
+            app:searchIcon="@android:drawable/ic_menu_search"
+            app:closeIcon="@android:drawable/ic_menu_close_clear_cancel" />
 
         <ImageButton
             android:id="@+id/btn_filter"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_marginStart="8dp"
-            android:background="@color/red"
+            android:background="@drawable/rounded_red_background"
             android:contentDescription="@string/filter_description"
             android:src="@android:drawable/ic_menu_sort_by_size"
             app:tint="@color/white" />
