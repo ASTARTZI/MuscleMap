@@ -52,12 +52,6 @@ public class AddExerciseActivity extends AppCompatActivity {
 
         dbHandler = new ExerciseDBHandler(this);
 
-        // Language buttons
-        View btnEn = findViewById(R.id.btn_en);
-        View btnEl = findViewById(R.id.btn_el);
-        if (btnEn != null) btnEn.setOnClickListener(v -> setLocale("en"));
-        if (btnEl != null) btnEl.setOnClickListener(v -> setLocale("el"));
-
         // Back button
         View btnBack = findViewById(R.id.btn_back_add);
         if (btnBack != null) btnBack.setOnClickListener(v -> finish());

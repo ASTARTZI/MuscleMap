@@ -42,12 +42,6 @@ public class ExerciseDetailActivity extends AppCompatActivity {
         TextView muscleGroupTextView = findViewById(R.id.detail_muscle_group);
         TextView descriptionTextView = findViewById(R.id.detail_description);
 
-        // Setup language buttons
-        View btnEn = findViewById(R.id.btn_en);
-        View btnEl = findViewById(R.id.btn_el);
-        if (btnEn != null) btnEn.setOnClickListener(v -> setLocale("en"));
-        if (btnEl != null) btnEl.setOnClickListener(v -> setLocale("el"));
-
         // Setup Delete button for Admin
         Button btnDelete = findViewById(R.id.btn_delete_exercise);
         if (btnDelete != null) {

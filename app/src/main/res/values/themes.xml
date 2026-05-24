@@ -6,4 +6,11 @@
     </style>
 
     <style name="Theme.MuscleApp" parent="Base.Theme.MuscleApp" />
+
+    <style name="AlertDialogTheme" parent="Theme.Material3.Dark.Dialog.Alert">
+        <item name="android:windowBackground">#1A1A1A</item>
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="colorAccent">@color/red</item>
+        <item name="android:colorAccent">@color/red</item>
+    </style>
 </resources>

@@ -14,39 +14,7 @@
         android:orientation="horizontal"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
-
-        <Button
-            android:id="@+id/btn_en"
-            style="?android:attr/buttonBarStyle"
-            android:layout_width="70dp"
-            android:layout_height="40dp"
-            android:layout_marginEnd="4dp"
-            android:text="EN"
-            android:textAllCaps="true"
-            android:textSize="14sp"
-            app:backgroundTint="@color/red" />
-
-        <Button
-            android:id="@+id/btn_el"
-            style="?android:attr/buttonBarStyle"
-            android:layout_width="70dp"
-            android:layout_height="40dp"
-            android:text="GR"
-            android:textAllCaps="true"
-            android:textSize="14sp"
-            app:backgroundTint="@color/red" />
     </LinearLayout>
-
-    <ImageButton
-        android:id="@+id/btn_back_add"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:src="@android:drawable/ic_menu_revert"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Back"
-        app:tint="@color/red"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
 
     <ScrollView
         android:layout_width="match_parent"
@@ -138,5 +106,16 @@
 
         </LinearLayout>
     </ScrollView>
+
+    <ImageButton
+        android:id="@+id/btn_back_add"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@android:drawable/ic_menu_revert"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Back"
+        app:tint="@color/red"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

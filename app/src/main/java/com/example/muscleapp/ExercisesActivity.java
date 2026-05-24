@@ -59,18 +59,6 @@ public class ExercisesActivity extends AppCompatActivity {
             currentMuscleGroup = "chest";   // fallback
         }
 
-        // Setup language buttons (from Version 2) with list refresh
-        View btnEn = findViewById(R.id.btn_en);
-        View btnEl = findViewById(R.id.btn_el);
-        if (btnEn != null) btnEn.setOnClickListener(v -> {
-            setLocale("en");
-            reloadExercises();
-        });
-        if (btnEl != null) btnEl.setOnClickListener(v -> {
-            setLocale("el");
-            reloadExercises();
-        });
-
         // Show Add button only for Admin (from Version 1)
         Button addBtn = findViewById(R.id.add_exercise_button);
         if (addBtn != null) {

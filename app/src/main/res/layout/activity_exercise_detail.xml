@@ -17,27 +17,6 @@
         android:orientation="horizontal"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
-
-        <Button
-            android:id="@+id/btn_en"
-            style="?android:attr/buttonBarStyle"
-            android:layout_width="70dp"
-            android:layout_height="40dp"
-            android:layout_marginEnd="4dp"
-            android:text="EN"
-            android:textAllCaps="true"
-            android:textSize="14sp"
-            app:backgroundTint="@color/red" />
-
-        <Button
-            android:id="@+id/btn_el"
-            style="?android:attr/buttonBarStyle"
-            android:layout_width="70dp"
-            android:layout_height="40dp"
-            android:text="GR"
-            android:textAllCaps="true"
-            android:textSize="14sp"
-            app:backgroundTint="@color/red" />
     </LinearLayout>
 
     <Button
@@ -56,7 +35,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@+id/footer"
-        app:layout_constraintTop_toBottomOf="@+id/lang_layout">
+        app:layout_constraintTop_toBottomOf="@+id/btn_delete_exercise">
 
         <LinearLayout
             android:layout_width="match_parent"

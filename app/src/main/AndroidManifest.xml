@@ -36,7 +36,7 @@
             android:name=".AddExerciseActivity"
             android:exported="false" />
         <activity
-            android:name=".GymProgramActivity"
+            android:name=".WorkoutDetailActivity"
             android:exported="false" />
     </application>
 

@@ -1,0 +1,265 @@
+package com.example.muscleapp;
+
+import android.app.Dialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+public class ProgramFragment extends Fragment {
+
+    private RecyclerView recyclerView;
+    private WorkoutAdapter adapter;
+    private List<Workout> workoutList;
+    private TextView emptyText;
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_program, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        recyclerView = view.findViewById(R.id.plan_recycler_view);
+        emptyText    = view.findViewById(R.id.plan_empty_text);
+        emptyText.setText("No workouts yet.\nTap + to create one.");
+
+        ProgramManager.getInstance().loadProgram(requireContext());
+        workoutList = ProgramManager.getInstance().getWorkouts();
+
+        adapter = new WorkoutAdapter(requireContext(), workoutList, (workout, position) -> {
+            Intent intent = new Intent(getActivity(), WorkoutDetailActivity.class);
+            intent.putExtra("WORKOUT_INDEX", position);
+            startActivity(intent);
+        }, (workout, position) -> {
+            showEditWorkoutDialog(workout, position);
+        }, position -> {
+            workoutList.remove(position);
+            adapter.notifyItemRemoved(position);
+            adapter.notifyItemRangeChanged(position, workoutList.size());
+            ProgramManager.getInstance().saveProgram(requireContext());
+            updateEmptyState();
+        });
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        recyclerView.setAdapter(adapter);
+        updateEmptyState();
+
+        FloatingActionButton fab = view.findViewById(R.id.fab_add_exercise);
+        fab.setOnClickListener(v -> showAddWorkoutDialog());
+
+        view.findViewById(R.id.btn_share_program).setOnClickListener(v -> showShareSelectionDialog());
+        view.findViewById(R.id.btn_import_program).setOnClickListener(v -> showImportDialog());
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (adapter != null) {
+            adapter.notifyDataSetChanged();
+            updateEmptyState();
+        }
+    }
+
+    private void updateEmptyState() {
+        if (workoutList.isEmpty()) {
+            emptyText.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+        } else {
+            emptyText.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void showAddWorkoutDialog() {
+        Dialog dialog = new Dialog(requireContext());
+        dialog.setContentView(R.layout.dialog_add_workout);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            dialog.getWindow().setLayout(
+                    (int) (getResources().getDisplayMetrics().widthPixels * 0.92),
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+            );
+        }
+
+        EditText nameET = dialog.findViewById(R.id.dialog_workout_name);
+        Button cancelBtn = dialog.findViewById(R.id.dialog_cancel_btn);
+        Button addBtn = dialog.findViewById(R.id.dialog_add_btn);
+
+        cancelBtn.setOnClickListener(v -> dialog.dismiss());
+        addBtn.setOnClickListener(v -> {
+            String name = nameET.getText().toString().trim();
+            if (name.isEmpty()) {
+                Toast.makeText(requireContext(), "Please enter a name", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            workoutList.add(new Workout(name));
+            adapter.notifyItemInserted(workoutList.size() - 1);
+            ProgramManager.getInstance().saveProgram(requireContext());
+            updateEmptyState();
+            dialog.dismiss();
+        });
+
+        dialog.show();
+    }
+
+    private void showEditWorkoutDialog(Workout workout, int position) {
+        Dialog dialog = new Dialog(requireContext());
+        dialog.setContentView(R.layout.dialog_add_workout);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            dialog.getWindow().setLayout(
+                    (int) (getResources().getDisplayMetrics().widthPixels * 0.92),
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+            );
+        }
+
+        EditText nameET = dialog.findViewById(R.id.dialog_workout_name);
+        Button cancelBtn = dialog.findViewById(R.id.dialog_cancel_btn);
+        Button addBtn = dialog.findViewById(R.id.dialog_add_btn);
+
+        nameET.setText(workout.getName());
+        addBtn.setText("Update");
+
+        cancelBtn.setOnClickListener(v -> dialog.dismiss());
+        addBtn.setOnClickListener(v -> {
+            String name = nameET.getText().toString().trim();
+            if (name.isEmpty()) {
+                Toast.makeText(requireContext(), "Please enter a name", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            workout.setName(name);
+            adapter.notifyItemChanged(position);
+            ProgramManager.getInstance().saveProgram(requireContext());
+            dialog.dismiss();
+        });
+
+        dialog.show();
+    }
+
+    private void showShareSelectionDialog() {
+        if (workoutList.isEmpty()) {
+            Toast.makeText(requireContext(), "No workouts to share", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String[] workoutNames = new String[workoutList.size()];
+        boolean[] checkedItems = new boolean[workoutList.size()];
+        for (int i = 0; i < workoutList.size(); i++) {
+            workoutNames[i] = workoutList.get(i).getName();
+            checkedItems[i] = true; // Default to all selected
+        }
+
+        new AlertDialog.Builder(requireContext(), R.style.AlertDialogTheme)
+                .setTitle("Select Workouts to Share")
+                .setMultiChoiceItems(workoutNames, checkedItems, (dialog, which, isChecked) -> {
+                    checkedItems[which] = isChecked;
+                })
+                .setPositiveButton("Share", (dialog, which) -> {
+                    List<Workout> selected = new ArrayList<>();
+                    for (int i = 0; i < checkedItems.length; i++) {
+                        if (checkedItems[i]) selected.add(workoutList.get(i));
+                    }
+                    if (selected.isEmpty()) {
+                        Toast.makeText(requireContext(), "Nothing selected", Toast.LENGTH_SHORT).show();
+                    } else {
+                        shareSelectedWorkouts(selected);
+                    }
+                })
+                .setNeutralButton("Share All", (dialog, which) -> {
+                    shareSelectedWorkouts(workoutList);
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void shareSelectedWorkouts(List<Workout> selected) {
+        String code = ProgramManager.getInstance().serializeWorkouts(selected);
+        ClipboardManager clipboard = (ClipboardManager) requireContext().getSystemService(Context.CLIPBOARD_SERVICE);
+        if (clipboard != null) {
+            clipboard.setPrimaryClip(ClipData.newPlainText("gym_program", code));
+        }
+
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, code);
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Shared Gym Workouts");
+        startActivity(Intent.createChooser(shareIntent, "Share via…"));
+    }
+
+    private void showImportDialog() {
+        EditText input = new EditText(requireContext());
+        input.setHint("Paste program code here");
+        input.setTextColor(0xFFFFFFFF);
+        input.setHintTextColor(0xFFAAAAAA);
+        input.setBackgroundColor(0xFF2C2C2C);
+        input.setPadding(24, 24, 24, 24);
+
+        new AlertDialog.Builder(requireContext(), R.style.AlertDialogTheme)
+                .setTitle("Import Workouts")
+                .setView(input)
+                .setPositiveButton("Import", (dlg, which) -> {
+                    String code = input.getText().toString().trim();
+                    if (!code.isEmpty()) {
+                        importAdditively(code);
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void importAdditively(String json) {
+        List<Workout> imported = ProgramManager.getInstance().deserializeWorkouts(json);
+        if (imported.isEmpty()) {
+            Toast.makeText(requireContext(), "Invalid or empty code", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Generate a unique identifier for this import session
+        String importId = generateShortId();
+        
+        for (Workout w : imported) {
+            w.setName(w.getName() + " [Imp-" + importId + "]");
+            workoutList.add(w);
+        }
+
+        adapter.notifyDataSetChanged();
+        updateEmptyState();
+        ProgramManager.getInstance().saveProgram(requireContext());
+        Toast.makeText(requireContext(), imported.size() + " workout(s) imported", Toast.LENGTH_SHORT).show();
+    }
+
+    private String generateShortId() {
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        StringBuilder sb = new StringBuilder();
+        Random random = new Random();
+        for (int i = 0; i < 4; i++) {
+            sb.append(chars.charAt(random.nextInt(chars.length())));
+        }
+        return sb.toString();
+    }
+}

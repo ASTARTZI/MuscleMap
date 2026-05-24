@@ -1,6 +1,8 @@
 package com.example.muscleapp;
 
-public class ExerciseItem extends Exercise{
+import java.io.Serializable;
+
+public class ExerciseItem extends Exercise implements Serializable {
     private int reps;
     private float weightKG;
 
