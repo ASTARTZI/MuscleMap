@@ -90,7 +90,7 @@ public class LoginActivity extends AppCompatActivity {
 
         mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                boolean isAdmin = email.equalsIgnoreCase("admin@gmail.com") && password.equals("admin");
+                boolean isAdmin = email.equalsIgnoreCase("admin@gmail.com");
                 
                 // Sync user to Firestore
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -113,5 +113,27 @@ public class LoginActivity extends AppCompatActivity {
                 Toast.makeText(this, "Login Failed: " + (task.getException() != null ? task.getException().getMessage() : "Unknown error"), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void loginSuccess(String email, boolean isAdmin) {
+        // Sync user to Firestore
+        if (mAuth.getCurrentUser() != null) {
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            Map<String, Object> user = new HashMap<>();
+            user.put("email", email);
+            user.put("uid", mAuth.getCurrentUser().getUid());
+            db.collection("users").document(mAuth.getCurrentUser().getUid()).set(user);
+        }
+
+        // Save admin status in SharedPreferences
+        getSharedPreferences("MuscleAppPrefs", MODE_PRIVATE)
+                .edit()
+                .putBoolean("is_admin", isAdmin)
+                .apply();
+
+        Toast.makeText(this, "Login Successful" + (isAdmin ? " (Admin)" : ""), Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+        startActivity(intent);
+        finish();
     }
 }

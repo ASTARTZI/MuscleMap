@@ -9,8 +9,10 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,9 +25,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.Random;
+import java.util.Locale;
 
 public class ProgramFragment extends Fragment {
 
@@ -167,34 +171,61 @@ public class ProgramFragment extends Fragment {
             return;
         }
 
-        String[] workoutNames = new String[workoutList.size()];
-        boolean[] checkedItems = new boolean[workoutList.size()];
-        for (int i = 0; i < workoutList.size(); i++) {
-            workoutNames[i] = workoutList.get(i).getName();
-            checkedItems[i] = true; // Default to all selected
+        Dialog dialog = new Dialog(requireContext());
+        dialog.setContentView(R.layout.dialog_share_selection);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            dialog.getWindow().setLayout(
+                    (int) (getResources().getDisplayMetrics().widthPixels * 0.92),
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+            );
         }
 
-        new AlertDialog.Builder(requireContext(), R.style.AlertDialogTheme)
-                .setTitle("Select Workouts to Share")
-                .setMultiChoiceItems(workoutNames, checkedItems, (dialog, which, isChecked) -> {
-                    checkedItems[which] = isChecked;
-                })
-                .setPositiveButton("Share", (dialog, which) -> {
-                    List<Workout> selected = new ArrayList<>();
-                    for (int i = 0; i < checkedItems.length; i++) {
-                        if (checkedItems[i]) selected.add(workoutList.get(i));
-                    }
-                    if (selected.isEmpty()) {
-                        Toast.makeText(requireContext(), "Nothing selected", Toast.LENGTH_SHORT).show();
-                    } else {
-                        shareSelectedWorkouts(selected);
-                    }
-                })
-                .setNeutralButton("Share All", (dialog, which) -> {
-                    shareSelectedWorkouts(workoutList);
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+        ListView listView = dialog.findViewById(R.id.share_list_view);
+        Button btnSelectAll = dialog.findViewById(R.id.btn_select_all);
+        Button btnDeselectAll = dialog.findViewById(R.id.btn_deselect_all);
+        Button btnCancel = dialog.findViewById(R.id.btn_share_cancel);
+        Button btnShare = dialog.findViewById(R.id.btn_share_confirm);
+
+        String[] workoutNames = new String[workoutList.size()];
+        for (int i = 0; i < workoutList.size(); i++) {
+            workoutNames[i] = workoutList.get(i).getName();
+        }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
+                R.layout.share_list_item, workoutNames);
+        listView.setAdapter(adapter);
+
+        btnSelectAll.setOnClickListener(v -> {
+            for (int i = 0; i < workoutNames.length; i++) {
+                listView.setItemChecked(i, true);
+            }
+        });
+
+        btnDeselectAll.setOnClickListener(v -> {
+            for (int i = 0; i < workoutNames.length; i++) {
+                listView.setItemChecked(i, false);
+            }
+        });
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        btnShare.setOnClickListener(v -> {
+            List<Workout> selected = new ArrayList<>();
+            for (int i = 0; i < workoutList.size(); i++) {
+                if (listView.isItemChecked(i)) {
+                    selected.add(workoutList.get(i));
+                }
+            }
+            if (selected.isEmpty()) {
+                Toast.makeText(requireContext(), "Nothing selected", Toast.LENGTH_SHORT).show();
+            } else {
+                shareSelectedWorkouts(selected);
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
     }
 
     private void shareSelectedWorkouts(List<Workout> selected) {
@@ -239,11 +270,14 @@ public class ProgramFragment extends Fragment {
             return;
         }
 
-        // Generate a unique identifier for this import session
-        String importId = generateShortId();
+        // Generate a unique identifier for this import session based on current date/time
+        String dateId = new SimpleDateFormat("d/M/yyyy HH:mm", Locale.getDefault()).format(new Date());
         
         for (Workout w : imported) {
-            w.setName(w.getName() + " [Imp-" + importId + "]");
+            // Strip any existing identifiers (old random ones or previous timestamps)
+            String cleanName = w.getName().replaceAll("\\s\\[Imp-.*?\\]", "")
+                                        .replaceAll("\\s\\[\\d{1,2}/\\d{1,2}/\\d{4}\\s\\d{2}:\\d{2}\\]", "");
+            w.setName(cleanName + " [" + dateId + "]");
             workoutList.add(w);
         }
 
@@ -251,15 +285,5 @@ public class ProgramFragment extends Fragment {
         updateEmptyState();
         ProgramManager.getInstance().saveProgram(requireContext());
         Toast.makeText(requireContext(), imported.size() + " workout(s) imported", Toast.LENGTH_SHORT).show();
-    }
-
-    private String generateShortId() {
-        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        StringBuilder sb = new StringBuilder();
-        Random random = new Random();
-        for (int i = 0; i < 4; i++) {
-            sb.append(chars.charAt(random.nextInt(chars.length())));
-        }
-        return sb.toString();
     }
 }
