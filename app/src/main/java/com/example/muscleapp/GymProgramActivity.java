@@ -6,6 +6,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -62,10 +64,9 @@ public class GymProgramActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_gym_program);
 
-        BottomNavigationView bottomNav = findViewById(R.id.bottom_nav);
-        ViewCompat.setOnApplyWindowInsetsListener(bottomNav, (v, insets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), systemBars.bottom);
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
@@ -84,16 +85,12 @@ public class GymProgramActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
         
-        // Handle incoming online import
         String importJson = getIntent().getStringExtra("IMPORT_JSON");
         if (importJson != null) {
-            importProgramFromCode(importJson, getCurrentLang());
+            importProgramFromCode(importJson);
         }
 
         updateEmptyState();
-
-        FloatingActionButton fab = findViewById(R.id.fab_add_exercise);
-        fab.setOnClickListener(v -> showAddExerciseDialog());
 
         findViewById(R.id.btn_share_program).setOnClickListener(v -> shareProgramAsCode());
         findViewById(R.id.btn_import_program).setOnClickListener(v -> showImportDialog());
@@ -103,23 +100,24 @@ public class GymProgramActivity extends AppCompatActivity {
             btnSaveOnline.setOnClickListener(v -> saveProgramToFirestore());
         }
 
+        FloatingActionButton fab = findViewById(R.id.fab_add_exercise);
+        fab.setOnClickListener(v -> showAddExerciseDialog());
+
+        BottomNavigationView bottomNav = findViewById(R.id.bottom_nav);
         bottomNav.setSelectedItemId(R.id.nav_program);
-        bottomNav.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                int id = item.getItemId();
-                if (id == R.id.nav_home) {
-                    startActivity(new Intent(GymProgramActivity.this, MainActivity.class));
-                    finish();
-                    return true;
-                }
-                if (id == R.id.nav_online_programs) {
-                    startActivity(new Intent(GymProgramActivity.this, OnlineActivity.class));
-                    finish();
-                    return true;
-                }
+        bottomNav.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_home) {
+                startActivity(new Intent(GymProgramActivity.this, MainActivity.class));
+                finish();
                 return true;
             }
+            if (id == R.id.nav_online_programs) {
+                startActivity(new Intent(GymProgramActivity.this, OnlineActivity.class));
+                finish();
+                return true;
+            }
+            return true;
         });
     }
 
@@ -146,7 +144,6 @@ public class GymProgramActivity extends AppCompatActivity {
 
     private void showAddExerciseDialog() {
         String lang = getCurrentLang();
-
         Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.dialog_add_exercise);
         if (dialog.getWindow() != null) {
@@ -186,7 +183,6 @@ public class GymProgramActivity extends AppCompatActivity {
 
         muscleSpinner.setSelection(0);
         cancelBtn.setOnClickListener(v -> dialog.dismiss());
-
         addBtn.setOnClickListener(v -> {
             int exPos = exerciseSpinner.getSelectedItemPosition();
             if (exercisesRef[0] == null || exercisesRef[0].isEmpty() || exPos < 0) {
@@ -194,20 +190,13 @@ public class GymProgramActivity extends AppCompatActivity {
                 return;
             }
             Exercise chosen = exercisesRef[0].get(exPos);
-            ExerciseItem item = new ExerciseItem(
-                    chosen.getTitle(),
-                    chosen.getDescription(),
-                    chosen.getMuscleGroup(),
-                    chosen.getImageName(),
-                    chosen.getTags(),   // ← FIXED: added tags
-                    0, 0f
-            );
+            ExerciseItem item = new ExerciseItem(chosen.getTitle(), chosen.getDescription(), 
+                chosen.getMuscleGroup(), chosen.getImageName(), chosen.getTags(), 0, 0f);
             programList.add(item);
             adapter.notifyItemInserted(programList.size() - 1);
             updateEmptyState();
             dialog.dismiss();
         });
-
         dialog.show();
     }
 
@@ -216,26 +205,24 @@ public class GymProgramActivity extends AppCompatActivity {
             Toast.makeText(this, "Program is empty", Toast.LENGTH_SHORT).show();
             return;
         }
-        
         FirebaseAuth auth = FirebaseAuth.getInstance();
         if (auth.getCurrentUser() == null) return;
-        
         try {
             JSONArray arr = new JSONArray();
             for (ExerciseItem item : programList) {
                 JSONObject obj = new JSONObject();
+                obj.put("title", item.getTitle());
+                obj.put("desc", item.getDescription());
+                obj.put("muscle", item.getMuscleGroup());
                 obj.put("image", item.getImageName());
                 arr.put(obj);
             }
-            
             FirebaseFirestore db = FirebaseFirestore.getInstance();
             Map<String, Object> data = new HashMap<>();
             data.put("program_json", arr.toString());
             data.put("last_updated", System.currentTimeMillis());
-            
             db.collection("users").document(auth.getUid()).collection("data").document("program").set(data)
                 .addOnSuccessListener(aVoid -> Toast.makeText(this, "Program saved online!", Toast.LENGTH_SHORT).show());
-                
         } catch (Exception e) {
             Toast.makeText(this, "Error saving program", Toast.LENGTH_SHORT).show();
         }
@@ -250,73 +237,92 @@ public class GymProgramActivity extends AppCompatActivity {
             JSONArray arr = new JSONArray();
             for (ExerciseItem item : programList) {
                 JSONObject obj = new JSONObject();
+                obj.put("title", item.getTitle());
+                obj.put("desc", item.getDescription());
+                obj.put("muscle", item.getMuscleGroup());
                 obj.put("image", item.getImageName());
                 arr.put(obj);
             }
-            String code = arr.toString();
+            String json = arr.toString();
+            final String encoded = Base64.encodeToString(json.getBytes(), Base64.NO_WRAP);
 
-            ClipboardManager clipboard =
-                    (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-            clipboard.setPrimaryClip(ClipData.newPlainText("gym_program", code));
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Share Program Link");
+            
+            LinearLayout layout = new LinearLayout(this);
+            layout.setOrientation(LinearLayout.VERTICAL);
+            layout.setPadding(60, 60, 60, 60);
 
-            Intent shareIntent = new Intent(Intent.ACTION_SEND);
-            shareIntent.setType("text/plain");
-            shareIntent.putExtra(Intent.EXTRA_TEXT, code);
-            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "My Gym Program");
-            startActivity(Intent.createChooser(shareIntent, "Share Program via…"));
+            TextView tvDesc = new TextView(this);
+            tvDesc.setText("Your program link (copy and send to a friend):");
+            tvDesc.setTextColor(android.graphics.Color.GRAY);
+            layout.addView(tvDesc);
 
+            TextView tvLink = new TextView(this);
+            tvLink.setText(encoded);
+            tvLink.setTextColor(android.graphics.Color.RED);
+            tvLink.setTextIsSelectable(true);
+            tvLink.setPadding(0, 20, 0, 20);
+            layout.addView(tvLink);
+
+            builder.setView(layout);
+            builder.setPositiveButton("Copy Link", (dialog, which) -> {
+                ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                clipboard.setPrimaryClip(ClipData.newPlainText("gym_program", encoded));
+                Toast.makeText(this, "Link copied!", Toast.LENGTH_SHORT).show();
+            });
+            builder.setNegativeButton("Share via...", (dialog, which) -> {
+                Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                shareIntent.setType("text/plain");
+                shareIntent.putExtra(Intent.EXTRA_TEXT, encoded);
+                startActivity(Intent.createChooser(shareIntent, "Share Program"));
+            });
+            builder.show();
         } catch (Exception e) {
             Toast.makeText(this, "Error creating share code", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void showImportDialog() {
-        String lang = getCurrentLang();
-
         EditText input = new EditText(this);
-        input.setHint("Paste program code here");
-        input.setTextColor(getResources().getColor(android.R.color.white, getTheme()));
-        input.setHintTextColor(getResources().getColor(android.R.color.darker_gray, getTheme()));
-        input.setBackgroundColor(0xFF2C2C2C);
-        input.setPadding(24, 24, 24, 24);
-
+        input.setHint("Paste link here");
+        input.setPadding(60, 60, 60, 60);
         new AlertDialog.Builder(this)
                 .setTitle("Import Program")
                 .setView(input)
                 .setPositiveButton("Import", (dlg, which) -> {
                     String code = input.getText().toString().trim();
-                    if (!code.isEmpty()) importProgramFromCode(code, lang);
+                    if (!code.isEmpty()) importProgramFromCode(code);
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
     }
 
-    private void importProgramFromCode(String code, String lang) {
+    private void importProgramFromCode(String code) {
         try {
-            JSONArray arr = new JSONArray(code);
-            int added = 0;
+            String decodedJson;
+            try {
+                decodedJson = new String(Base64.decode(code, Base64.DEFAULT));
+            } catch (Exception e) {
+                decodedJson = code; // Fallback if not base64
+            }
+            
+            JSONArray arr = new JSONArray(decodedJson);
+            programList.clear(); // Clear existing program before import
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject obj = arr.getJSONObject(i);
-                String imageName = obj.getString("image");
-                Exercise ex = dbHandler.getExerciseByImageName(imageName, lang);
-                if (ex != null) {
-                    programList.add(new ExerciseItem(
-                            ex.getTitle(), ex.getDescription(),
-                            ex.getMuscleGroup(), ex.getImageName(),
-                            ex.getTags(),   // ← FIXED: added tags
-                            0, 0f));
-                    added++;
-                }
+                programList.add(new ExerciseItem(
+                        obj.getString("title"),
+                        obj.getString("desc"),
+                        obj.getString("muscle"),
+                        obj.getString("image"),
+                        "", 0, 0f));
             }
-            if (added > 0) {
-                adapter.notifyDataSetChanged();
-                updateEmptyState();
-                Toast.makeText(this, added + " exercise(s) imported!", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this, "No valid exercises found in code", Toast.LENGTH_SHORT).show();
-            }
+            adapter.notifyDataSetChanged();
+            updateEmptyState();
+            Toast.makeText(this, "Program imported!", Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
-            Toast.makeText(this, "Invalid code format", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Invalid link format", Toast.LENGTH_SHORT).show();
         }
     }
 

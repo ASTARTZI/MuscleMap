@@ -32,7 +32,6 @@ public class ExercisesActivity extends AppCompatActivity {
     private ExerciseDBHandler dbHandler;
     private final Set<String> selectedTags = new HashSet<>();
     private String currentSearchQuery = "";
-    private String currentMuscleGroup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,28 +53,17 @@ public class ExercisesActivity extends AppCompatActivity {
 
         // Get the muscle group from the intent
         Intent intent = getIntent();
-        currentMuscleGroup = intent.getStringExtra("MUSCLE_GROUP");
-        if (currentMuscleGroup == null) {
-            currentMuscleGroup = "chest";   // fallback
+        String muscleGroup = intent.getStringExtra("MUSCLE_GROUP");
+        if (muscleGroup == null) {
+            muscleGroup = "chest";   // fallback
         }
 
-        // Setup language buttons (from Version 2) with list refresh
-        View btnEn = findViewById(R.id.btn_en);
-        View btnEl = findViewById(R.id.btn_el);
-        if (btnEn != null) btnEn.setOnClickListener(v -> {
-            setLocale("en");
-            reloadExercises();
-        });
-        if (btnEl != null) btnEl.setOnClickListener(v -> {
-            setLocale("el");
-            reloadExercises();
-        });
-
-        // Show Add button only for Admin (from Version 1)
+        // Show Add button only for Admin
         Button addBtn = findViewById(R.id.add_exercise_button);
         if (addBtn != null) {
             boolean isAdmin = getSharedPreferences("MuscleAppPrefs", MODE_PRIVATE)
                     .getBoolean("is_admin", false);
+            
             if (isAdmin) {
                 addBtn.setVisibility(View.VISIBLE);
                 addBtn.setOnClickListener(v -> {
@@ -87,21 +75,34 @@ public class ExercisesActivity extends AppCompatActivity {
             }
         }
 
-        // Initial load of exercises
-        reloadExercises();
+        // Get current language
+        LocaleListCompat locales = AppCompatDelegate.getApplicationLocales();
+        String lang;
+        if (!locales.isEmpty() && locales.get(0) != null) {
+            lang = locales.get(0).getLanguage();
+        } else {
+            lang = Locale.getDefault().getLanguage();
+        }
+        if (!"el".equals(lang)) lang = "en";
+
+        // Load exercises from DB
+        exerciseList = dbHandler.getExercisesByMuscleGroup(muscleGroup, lang);
+        filteredList = new ArrayList<>(exerciseList);
 
         adapter = new ExerciseAdapter(this, filteredList);
         recyclerView.setAdapter(adapter);
 
-        // Setup Search (from Version 1)
+        // Setup Search
         SearchView searchView = findViewById(R.id.search_view);
         if (searchView != null) {
             searchView.setBackgroundColor(android.graphics.Color.WHITE);
+            
             AutoCompleteTextView searchEditText = searchView.findViewById(androidx.appcompat.R.id.search_src_text);
             if (searchEditText != null) {
                 searchEditText.setTextColor(android.graphics.Color.BLACK);
                 searchEditText.setHintTextColor(android.graphics.Color.GRAY);
             }
+
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
                 public boolean onQueryTextSubmit(String query) {
@@ -119,35 +120,10 @@ public class ExercisesActivity extends AppCompatActivity {
             });
         }
 
-        // Setup Filter (from Version 1)
+        // Setup Filter
         ImageButton btnFilter = findViewById(R.id.btn_filter);
         if (btnFilter != null) {
             btnFilter.setOnClickListener(v -> showFilterDialog());
-        }
-    }
-
-    private void reloadExercises() {
-        // Get current language
-        LocaleListCompat locales = AppCompatDelegate.getApplicationLocales();
-        String lang;
-        if (!locales.isEmpty() && locales.get(0) != null) {
-            lang = locales.get(0).getLanguage();
-        } else {
-            lang = Locale.getDefault().getLanguage();
-        }
-        if (!"el".equals(lang)) lang = "en";
-
-        // Load from database
-        exerciseList = dbHandler.getExercisesByMuscleGroup(currentMuscleGroup, lang);
-        filteredList = new ArrayList<>(exerciseList);
-
-        // Reset filters
-        selectedTags.clear();
-        currentSearchQuery = "";
-
-        // Update adapter if it exists
-        if (adapter != null) {
-            adapter.updateList(filteredList);
         }
     }
 
@@ -185,6 +161,7 @@ public class ExercisesActivity extends AppCompatActivity {
                 selectedTags.remove(allTags[which]);
             }
         });
+
         builder.setPositiveButton("Apply", (dialog, which) -> applyFilters());
         builder.setNegativeButton("Clear All", (dialog, which) -> {
             selectedTags.clear();
