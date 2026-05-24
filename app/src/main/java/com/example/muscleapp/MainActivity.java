@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
                         return true;
                     }
                     if (id == R.id.nav_online_programs) {
-                        // TODO: implement online programs
+                        startActivity(new Intent(MainActivity.this, OnlineActivity.class));
                         return true;
                     }
                     // nav_home: already here

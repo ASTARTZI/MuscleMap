@@ -32,13 +32,17 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class GymProgramActivity extends AppCompatActivity {
 
@@ -79,6 +83,13 @@ public class GymProgramActivity extends AppCompatActivity {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
+        
+        // Handle incoming online import
+        String importJson = getIntent().getStringExtra("IMPORT_JSON");
+        if (importJson != null) {
+            importProgramFromCode(importJson, getCurrentLang());
+        }
+
         updateEmptyState();
 
         FloatingActionButton fab = findViewById(R.id.fab_add_exercise);
@@ -86,6 +97,11 @@ public class GymProgramActivity extends AppCompatActivity {
 
         findViewById(R.id.btn_share_program).setOnClickListener(v -> shareProgramAsCode());
         findViewById(R.id.btn_import_program).setOnClickListener(v -> showImportDialog());
+        
+        Button btnSaveOnline = findViewById(R.id.btn_save_online);
+        if (btnSaveOnline != null) {
+            btnSaveOnline.setOnClickListener(v -> saveProgramToFirestore());
+        }
 
         bottomNav.setSelectedItemId(R.id.nav_program);
         bottomNav.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
@@ -98,7 +114,8 @@ public class GymProgramActivity extends AppCompatActivity {
                     return true;
                 }
                 if (id == R.id.nav_online_programs) {
-                    // TODO
+                    startActivity(new Intent(GymProgramActivity.this, OnlineActivity.class));
+                    finish();
                     return true;
                 }
                 return true;
@@ -192,6 +209,36 @@ public class GymProgramActivity extends AppCompatActivity {
         });
 
         dialog.show();
+    }
+
+    private void saveProgramToFirestore() {
+        if (programList.isEmpty()) {
+            Toast.makeText(this, "Program is empty", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        if (auth.getCurrentUser() == null) return;
+        
+        try {
+            JSONArray arr = new JSONArray();
+            for (ExerciseItem item : programList) {
+                JSONObject obj = new JSONObject();
+                obj.put("image", item.getImageName());
+                arr.put(obj);
+            }
+            
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            Map<String, Object> data = new HashMap<>();
+            data.put("program_json", arr.toString());
+            data.put("last_updated", System.currentTimeMillis());
+            
+            db.collection("users").document(auth.getUid()).collection("data").document("program").set(data)
+                .addOnSuccessListener(aVoid -> Toast.makeText(this, "Program saved online!", Toast.LENGTH_SHORT).show());
+                
+        } catch (Exception e) {
+            Toast.makeText(this, "Error saving program", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void shareProgramAsCode() {

@@ -37,7 +37,8 @@ android {
 }
 
 dependencies {
-    implementation("com.google.firebase:firebase-auth:23.0.0")
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
     implementation(libs.activity.ktx)
     implementation(libs.appcompat)
     implementation(libs.credentials)

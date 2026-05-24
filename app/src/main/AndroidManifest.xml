@@ -38,6 +38,9 @@
         <activity
             android:name=".GymProgramActivity"
             android:exported="false" />
+        <activity
+            android:name=".OnlineActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
