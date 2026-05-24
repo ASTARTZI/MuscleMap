@@ -9,8 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ExerciseDBHandler extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 23;
+    private static final int DATABASE_VERSION = 24;
     private static final String DATABASE_NAME = "exerciseDB.db";
+    
     public static final String TABLE_EXERCISES = "exercises";
     public static final String COLUMN_ID = "_id";
     public static final String COLUMN_TITLE = "title";
@@ -20,13 +21,18 @@ public class ExerciseDBHandler extends SQLiteOpenHelper {
     public static final String COLUMN_LANGUAGE = "language";
     public static final String COLUMN_TAGS = "tags";
 
+    // New Table for Local User Programs
+    public static final String TABLE_PROGRAMS = "user_programs";
+    public static final String COLUMN_USER_ID = "user_id";
+    public static final String COLUMN_PROGRAM_DATA = "program_json";
+
     public ExerciseDBHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String CREATE_TABLE = "CREATE TABLE " + TABLE_EXERCISES + "("
+        String CREATE_EXERCISES_TABLE = "CREATE TABLE " + TABLE_EXERCISES + "("
                 + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + COLUMN_TITLE + " TEXT,"
                 + COLUMN_DESCRIPTION + " TEXT,"
@@ -34,26 +40,72 @@ public class ExerciseDBHandler extends SQLiteOpenHelper {
                 + COLUMN_IMAGE_NAME + " TEXT,"
                 + COLUMN_LANGUAGE + " TEXT,"
                 + COLUMN_TAGS + " TEXT" + ")";
-        db.execSQL(CREATE_TABLE);
+        db.execSQL(CREATE_EXERCISES_TABLE);
+
+        String CREATE_PROGRAMS_TABLE = "CREATE TABLE " + TABLE_PROGRAMS + "("
+                + COLUMN_USER_ID + " TEXT PRIMARY KEY,"
+                + COLUMN_PROGRAM_DATA + " TEXT" + ")";
+        db.execSQL(CREATE_PROGRAMS_TABLE);
+
         insertDefaultExercises(db);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_EXERCISES);
-        onCreate(db);
+        if (oldVersion < 24) {
+            String CREATE_PROGRAMS_TABLE = "CREATE TABLE " + TABLE_PROGRAMS + "("
+                    + COLUMN_USER_ID + " TEXT PRIMARY KEY,"
+                    + COLUMN_PROGRAM_DATA + " TEXT" + ")";
+            db.execSQL(CREATE_PROGRAMS_TABLE);
+        }
     }
 
     @Override
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        onUpgrade(db, oldVersion, newVersion);
+        // Just recreate if moving backwards during development
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_EXERCISES);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PROGRAMS);
+        onCreate(db);
     }
+
+    // --- Local Program Management ---
+
+    public void saveLocalProgram(String userId, String json) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_USER_ID, userId);
+        values.put(COLUMN_PROGRAM_DATA, json);
+        db.replace(TABLE_PROGRAMS, null, values);
+        db.close();
+    }
+
+    public String getLocalProgram(String userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_PROGRAMS, new String[]{COLUMN_PROGRAM_DATA},
+                COLUMN_USER_ID + " = ?", new String[]{userId},
+                null, null, null);
+
+        String json = null;
+        if (cursor.moveToFirst()) {
+            json = cursor.getString(0);
+        }
+        cursor.close();
+        db.close();
+        return json;
+    }
+
+    public void deleteLocalProgram(String userId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_PROGRAMS, COLUMN_USER_ID + " = ?", new String[]{userId});
+        db.close();
+    }
+
+    // --- Exercise Management ---
 
     public List<Exercise> getExercisesByMuscleGroup(String muscleGroup, String lang) {
         List<Exercise> list = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
 
-        // Use LIKE query to support comma-separated muscle groups
         String selection = "(" + COLUMN_MUSCLE_GROUP + " = ? OR " +
                 COLUMN_MUSCLE_GROUP + " LIKE ? OR " +
                 COLUMN_MUSCLE_GROUP + " LIKE ? OR " +
@@ -62,15 +114,13 @@ public class ExerciseDBHandler extends SQLiteOpenHelper {
 
         String[] selectionArgs = new String[]{
                 muscleGroup,
-                muscleGroup + ",%",   // At the start
-                "%," + muscleGroup,   // At the end
-                "%," + muscleGroup + ",%", // In the middle
+                muscleGroup + ",%",
+                "%," + muscleGroup,
+                "%," + muscleGroup + ",%",
                 lang
         };
 
-        Cursor cursor = db.query(TABLE_EXERCISES, null,
-                selection, selectionArgs,
-                null, null, null);
+        Cursor cursor = db.query(TABLE_EXERCISES, null, selection, selectionArgs, null, null, null);
 
         if (cursor.moveToFirst()) {
             do {
@@ -162,7 +212,7 @@ public class ExerciseDBHandler extends SQLiteOpenHelper {
         addExerciseInternal(db, "Καθίσματα", "Τα καθίσματα γυμνάζουν πόδια και γλουτούς.\nΠόδια στο άνοιγμα των ώμων.\nΚατεβάστε τους γοφούς πίσω και κάτω.\nΓόνατα στην ίδια ευθεία με τα δάχτυλα.\nΜην αφήνετε τα γόνατα να κλείνουν.\nΣπονδυλική στήλη ίσια και κορμός σφιχτός.\nΣπρώξτε με τις φτέρνες για να σηκωθείτε.\nΜην γέρνετε πολύ μπροστά.\nΚάντε ζέσταμα.", "legs", "squats", "el", "τετρακέφαλοι,γλουτοί,σύνθετη");
         addExerciseInternal(db, "Πρέσα Ποδιών", "Η πρέσα δυναμώνει τα πόδια με ασφάλεια.\nΣτοχεύει τετρακέφαλους και γλουτούς.\nΚαθίστε σταθερά με τα πόδια στην πλατφόρμα.\nΚατεβάστε αργά μέχρι τις 90 μοίρες.\nΜην φέρνετε γόνατα πολύ κοντά στο στήθος.\nΣπρώξτε πάνω με τις φτέρνες.\nΜέση κολλημένη στο κάθισμα.\nΧρησιμοποιήστε ελεγχόμενη κίνηση.\nΑυξήστε το βάρος σταδιακά.", "legs", "leg_press", "el", "τετρακέφαλοι,γλουτοί,σύνθετη");
         addExerciseInternal(db, "Πιέσεις Ώμων", "Οι πιέσεις ώμων χτίζουν δύναμη στο πάνω σώμα.\nΣτοχεύουν δελτοειδείς και τρικέφαλους.\nΠόδια στο άνοιγμα των ώμων.\nΠιέστε πάνω σε ευθεία γραμμή.\nΜην τοξοειδείτε τη μέση.\nΚατεβάστε αργά στο ύψος των ώμων.\nΚρατήστε τον κορμό σφιχτό.\nΞεκινήστε με λίγα βάρη.\nΑναπνέετε σταθερά.", "shoulders", "overhead_press", "el", "μπροστινοί δελτοειδείς,σύνθετη");
-        addExerciseInternal(db, "Πλάγιες Εκτάσεις", "Οι πλάγιες εκτάσεις στοχεύουν τους ώμους.\nΒοηθούν στο πλάτος των ώμων.\nΚρατήστε τους αλτήρες στα πλάγια.\nΣηκώστε μέχρι το ύψος των ώμων.\nΜην σηκώνετε πολύ ψηλά.\nΜην κουνάτε το σώμα σας.\nΚατεβάστε τα βάρη αργά.\nΧρησιμοποιήστε ελαφριά βάρη.\nΚρατήστε τους ώμους χαλαρούς.", "shoulders", "lateral_raise", "el", "πλάγιοι δελτοειδείς,απομόνωση");
+        addExerciseInternal(db, "Πλάγιες Εκτάσεις", "Οι πλάγιες εκτάσεις στοχεύουν τους ώμους.\nΒοηθούν στο πλάτος των ώμων.\nΚρατήστε τους αλτήρες στα πλάγια.\nΣηκώστε μέχρι το ύψος των ώμων.\nΜην σηκώνετε πολύ γρήγορα.\nΜην κουνάτε το σώμα σας.\nΚατεβάστε τα βάρη αργά.\nΧρησιμοποιήστε ελαφριά βάρη.\nΚρατήστε τους ώμους χαλαρούς.", "shoulders", "lateral_raise", "el", "πλάγιοι δελτοειδείς,απομόνωση");
         addExerciseInternal(db, "Έλξεις στο Μονόζυγο", "Οι έλξεις δυναμώνουν την πλάτη.\nΣτοχεύουν φτερά και δικέφαλους.\nΠιάστε τη μπάρα έξω από τους ώμους.\nΤραβήξτε μέχρι το πηγούνι να περάσει.\nΜην κουνιέστε για ορμή.\nΚατεβείτε αργά.\nΚρατήστε τον κορμό ενεργό.\nΟι αρχάριοι χρησιμοποιούν λάστιχα.\nΕστιάστε στους ώμους.", "back,arm", "pull_ups", "el", "φτερά,δικέφαλοι,σύνθετη");
         addExerciseInternal(db, "Άρσεις Θανάτου", "Οι άρσεις θανάτου χτίζουν όλο το σώμα.\nΣτοχεύουν πλάτη, γλουτούς και μέση.\nΠόδια στο άνοιγμα των γοφών.\nΊσια πλάτη σε όλη τη διάρκεια.\nΣηκώστε σπρώχνοντας με τα πόδια.\nΜην καμπουριάζετε την πλάτη.\nΣταθείτε όρθιοι στην κορυφή.\nΚατεβάστε ελεγχόμενα.\nΤεχνική πάνω από όλα.", "back,legs", "deadlift", "el", "μέση,μηριαίοι δικέφαλοι,σύνθετη");
         addExerciseInternal(db, "Ροκανίσματα", "Τα ροκανίσματα δυναμώνουν τους κοιλιακούς.\nΑνάσκελα με λυγισμένα γόνατα.\nΧέρια πίσω από το κεφάλι ελαφρά.\nΣηκώστε ώμους λίγο από το πάτωμα.\nΜην τραβάτε τον αυχένα.\nΚινηθείτε αργά.\nΕκπνεύστε καθώς ανεβαίνετε.\nΚρατήστε τη μέση σταθερή.\nΠοιότητα αντί για ταχύτητα.", "abs", "crunches", "el", "πάνω κοιλιακοί,απομόνωση");
