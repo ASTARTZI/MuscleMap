@@ -13,6 +13,8 @@
     <string name="register">Εγγραφή</string>
     <string name="welcome">Καλώς ήρθατε</string>
     <string name="sign_up">Εγγραφή</string>
+    <string name="first_name_hint">Όνομα</string>
+    <string name="last_name_hint">Επώνυμο</string>
     <string name="email_hint">Email</string>
     <string name="password_hint">Κωδικός</string>
     <string name="footer_text">MuscleMap App | Mobile Applications Development Project 2026 ©</string>

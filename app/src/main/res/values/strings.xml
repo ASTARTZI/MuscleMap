@@ -13,6 +13,8 @@
     <string name="register">Register</string>
     <string name="welcome">Welcome</string>
     <string name="sign_up">Sign Up</string>
+    <string name="first_name_hint">First Name</string>
+    <string name="last_name_hint">Last Name</string>
     <string name="email_hint">Email</string>
     <string name="password_hint">Password</string>
     <string name="footer_text">MuscleMap App | Mobile Applications Development Project 2026 ©</string>

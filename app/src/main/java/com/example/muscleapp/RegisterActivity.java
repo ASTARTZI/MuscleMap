@@ -23,6 +23,8 @@ import java.util.Map;
 
 public class RegisterActivity extends AppCompatActivity {
 
+    private EditText firstNameET;
+    private EditText lastNameET;
     private EditText emailET;
     private EditText passwordET;
     private Button registerbtn;
@@ -47,11 +49,13 @@ public class RegisterActivity extends AppCompatActivity {
         if (btnEn != null) btnEn.setOnClickListener(v -> setLocale("en"));
         if (btnEl != null) btnEl.setOnClickListener(v -> setLocale("el"));
 
-        emailET=findViewById(R.id.emailET);
-        passwordET=findViewById(R.id.passwordET);
-        registerbtn=findViewById(R.id.registerbtn);
-        loginbtn=findViewById(R.id.loginbtn);
-        mAuth=FirebaseAuth.getInstance();
+        firstNameET = findViewById(R.id.firstNameET);
+        lastNameET = findViewById(R.id.lastNameET);
+        emailET = findViewById(R.id.emailET);
+        passwordET = findViewById(R.id.passwordET);
+        registerbtn = findViewById(R.id.registerbtn);
+        loginbtn = findViewById(R.id.loginbtn);
+        mAuth = FirebaseAuth.getInstance();
 
         registerbtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -75,26 +79,32 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     public void registerButtonClicked(){
-        String email=emailET.getText().toString();
-        String password=passwordET.getText().toString();
-        if(email.isEmpty() || password.isEmpty()){
+        String firstName = firstNameET.getText().toString().trim();
+        String lastName = lastNameET.getText().toString().trim();
+        String email = emailET.getText().toString().trim();
+        String password = passwordET.getText().toString().trim();
+
+        if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || password.isEmpty()) {
             Toast.makeText(this, "The fields are incomplete", Toast.LENGTH_SHORT).show();
             return;
         }
-        if(password.length()<6){
+        if (password.length() < 6) {
             Toast.makeText(this, "Password should be at least 6 characters long", Toast.LENGTH_SHORT).show();
             return;
         }
-        if(!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()){
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             Toast.makeText(this, "Email is invalid", Toast.LENGTH_SHORT).show();
             return;
         }
-        mAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener(task -> {
+        
+        mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
             if(task.isSuccessful()){
                 // Save user to Firestore for searching
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
                 Map<String, Object> user = new HashMap<>();
-                user.put("email", email);
+                user.put("firstName", firstName);
+                user.put("lastName", lastName);
+                user.put("email", email.toLowerCase());
                 user.put("uid", mAuth.getCurrentUser().getUid());
                 
                 db.collection("users").document(mAuth.getCurrentUser().getUid()).set(user);
@@ -109,7 +119,7 @@ public class RegisterActivity extends AppCompatActivity {
                 Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
                 startActivity(intent);
                 finish();
-            }else{
+            } else {
                 Toast.makeText(this, "Error: " + (task.getException() != null ? task.getException().getMessage() : "Unknown error")
                         , Toast.LENGTH_SHORT).show();
             }
