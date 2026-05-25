@@ -11,6 +11,8 @@
     <string name="logout">Αποσύνδεση</string>
     <string name="login">Σύνδεση</string>
     <string name="register">Εγγραφή</string>
+    <string name="login_page">Σελίδα Σύνδεσης</string>
+    <string name="register_page">Σελίδα Εγγραφής</string>
     <string name="welcome">Καλώς ήρθατε</string>
     <string name="sign_up">Εγγραφή</string>
     <string name="first_name_hint">Όνομα</string>
@@ -61,6 +63,8 @@
     <string name="add">Προσθήκη</string>
     <string name="update">Ενημέρωση</string>
     <string name="delete">Διαγραφή</string>
+    <string name="delete_workout_confirmation">Είστε σίγουροι ότι θέλετε να διαγράψετε αυτή την προπόνηση;</string>
+    <string name="delete_exercise_confirmation">Είστε σίγουροι ότι θέλετε να διαγράψετε αυτή την άσκηση;</string>
     <string name="delete_online_confirmation">Είστε σίγουροι ότι θέλετε να διαγράψετε αυτή την προπόνηση από τη γκαλερί;</string>
     <string name="delete_success">Διαγράφηκε επιτυχώς</string>
     <string name="add_exercise">Προσθήκη Άσκησης</string>
@@ -85,4 +89,9 @@
     <string name="save_exercise">Αποθήκευση Άσκησης</string>
     <string name="exercise_added_success">Η άσκηση προστέθηκε με επιτυχία!</string>
     <string name="mandatory_fields_error">Ο Τίτλος και η Περιγραφή είναι υποχρεωτικά</string>
+    <string name="sets">Σετ</string>
+    <string name="reps">Επαν.</string>
+    <string name="repetitions">Επαναλήψεις</string>
+    <string name="weight">Βάρος</string>
+    <string name="stats_format">%1$d σετ x %2$d επαν. @ %3$.1f %4$s</string>
 </resources>

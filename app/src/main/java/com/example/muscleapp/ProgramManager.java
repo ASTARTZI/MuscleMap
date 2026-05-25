@@ -82,8 +82,10 @@ public class ProgramManager {
                     exObj.put("muscle", item.getMuscleGroup());
                     exObj.put("image", item.getImageName());
                     exObj.put("tags", item.getTags());
+                    exObj.put("sets", item.getSets());
                     exObj.put("reps", item.getReps());
-                    exObj.put("weight", (double) item.getWeightKG());
+                    exObj.put("weight", (double) item.getWeight());
+                    exObj.put("unit", item.getWeightUnit());
                     exerciseArray.put(exObj);
                 }
                 workoutObj.put("exercises", exerciseArray);
@@ -113,8 +115,10 @@ public class ProgramManager {
                             exObj.getString("muscle"),
                             exObj.getString("image"),
                             exObj.getString("tags"),
+                            exObj.optInt("sets", 0),
                             exObj.getInt("reps"),
-                            (float) exObj.getDouble("weight")
+                            (float) exObj.optDouble("weight", 0.0),
+                            exObj.optString("unit", "kg")
                     );
                     workout.addExercise(item);
                 }

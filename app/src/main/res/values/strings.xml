@@ -11,6 +11,8 @@
     <string name="logout">Logout</string>
     <string name="login">Log in</string>
     <string name="register">Register</string>
+    <string name="login_page">Login Page</string>
+    <string name="register_page">Register Page</string>
     <string name="welcome">Welcome</string>
     <string name="sign_up">Sign Up</string>
     <string name="first_name_hint">First Name</string>
@@ -61,6 +63,8 @@
     <string name="add">Add</string>
     <string name="update">Update</string>
     <string name="delete">Delete</string>
+    <string name="delete_workout_confirmation">Are you sure you want to delete this workout?</string>
+    <string name="delete_exercise_confirmation">Are you sure you want to delete this exercise?</string>
     <string name="delete_online_confirmation">Are you sure you want to delete this workout from the gallery?</string>
     <string name="delete_success">Deleted successfully</string>
     <string name="add_exercise">Add Exercise</string>
@@ -85,4 +89,9 @@
     <string name="save_exercise">Save Exercise</string>
     <string name="exercise_added_success">Exercise added successfully!</string>
     <string name="mandatory_fields_error">Title and Description are mandatory</string>
+    <string name="sets">Sets</string>
+    <string name="reps">Reps</string>
+    <string name="repetitions">Repetitions</string>
+    <string name="weight">Weight</string>
+    <string name="stats_format">%1$d sets x %2$d reps @ %3$.1f %4$s</string>
 </resources>

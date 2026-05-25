@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AutoCompleteTextView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -12,6 +13,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -31,10 +33,14 @@ public class OnlineFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private OnlineWorkoutAdapter adapter;
-    private List<DocumentSnapshot> workoutDocs;
+    private List<DocumentSnapshot> allWorkoutDocs;
+    private List<DocumentSnapshot> filteredWorkoutDocs;
     private SwipeRefreshLayout swipeRefresh;
     private ProgressBar progressBar;
     private TextView emptyText;
+    private ExerciseDBHandler dbHandler;
+
+    private String currentSearchQuery = "";
 
     @Nullable
     @Override
@@ -51,8 +57,11 @@ public class OnlineFragment extends Fragment {
         progressBar = view.findViewById(R.id.online_progress_bar);
         emptyText = view.findViewById(R.id.online_empty_text);
 
-        workoutDocs = new ArrayList<>();
-        adapter = new OnlineWorkoutAdapter(requireContext(), workoutDocs, 
+        dbHandler = new ExerciseDBHandler(requireContext());
+        allWorkoutDocs = new ArrayList<>();
+        filteredWorkoutDocs = new ArrayList<>();
+        
+        adapter = new OnlineWorkoutAdapter(requireContext(), filteredWorkoutDocs, 
                 doc -> {
                     // Open WorkoutDetailActivity in view-only mode
                     String json = doc.getString("workout_json");
@@ -80,7 +89,41 @@ public class OnlineFragment extends Fragment {
 
         swipeRefresh.setOnRefreshListener(this::loadOnlineWorkouts);
 
+        setupSearch(view);
+
         loadOnlineWorkouts();
+    }
+
+    private void setupSearch(View view) {
+        SearchView searchView = view.findViewById(R.id.online_search_view);
+        if (searchView != null) {
+            AutoCompleteTextView searchEditText = searchView.findViewById(androidx.appcompat.R.id.search_src_text);
+            if (searchEditText != null) {
+                searchEditText.setTextColor(android.graphics.Color.WHITE);
+                searchEditText.setHintTextColor(android.graphics.Color.parseColor("#E0E0E0"));
+            }
+            
+            View searchPlate = searchView.findViewById(androidx.appcompat.R.id.search_plate);
+            if (searchPlate != null) {
+                searchPlate.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+            }
+
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    currentSearchQuery = query;
+                    applyFilters();
+                    return true;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String newText) {
+                    currentSearchQuery = newText;
+                    applyFilters();
+                    return true;
+                }
+            });
+        }
     }
 
     private void loadOnlineWorkouts() {
@@ -90,25 +133,78 @@ public class OnlineFragment extends Fragment {
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!isAdded()) return;
                     progressBar.setVisibility(View.GONE);
                     swipeRefresh.setRefreshing(false);
-                    workoutDocs.clear();
-                    workoutDocs.addAll(queryDocumentSnapshots.getDocuments());
-                    adapter.notifyDataSetChanged();
-                    
-                    if (workoutDocs.isEmpty()) {
-                        emptyText.setVisibility(View.VISIBLE);
-                        recyclerView.setVisibility(View.GONE);
-                    } else {
-                        emptyText.setVisibility(View.GONE);
-                        recyclerView.setVisibility(View.VISIBLE);
-                    }
+                    allWorkoutDocs.clear();
+                    allWorkoutDocs.addAll(queryDocumentSnapshots.getDocuments());
+                    applyFilters();
                 })
                 .addOnFailureListener(e -> {
+                    if (!isAdded()) return;
                     progressBar.setVisibility(View.GONE);
                     swipeRefresh.setRefreshing(false);
                     Toast.makeText(requireContext(), "Failed to load: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
+    }
+
+    private void applyFilters() {
+        filteredWorkoutDocs.clear();
+        String query = currentSearchQuery.toLowerCase().trim();
+
+        for (DocumentSnapshot doc : allWorkoutDocs) {
+            String workoutName = doc.getString("workout_name");
+            String uploaderEmail = doc.getString("uploader_email");
+            String workoutJson = doc.getString("workout_json");
+            
+            if (workoutName == null) workoutName = "";
+            if (uploaderEmail == null) uploaderEmail = "";
+            String uploaderName = uploaderEmail.split("@")[0];
+
+            boolean matchesSearch = query.isEmpty() || 
+                    workoutName.toLowerCase().contains(query) || 
+                    uploaderName.toLowerCase().contains(query);
+
+            // Check exercises for search (Bilingual Support)
+            List<Workout> list = ProgramManager.getInstance().deserializeWorkouts(workoutJson);
+            if (!list.isEmpty()) {
+                for (ExerciseItem item : list.get(0).getExercises()) {
+                    // 1. Check title as stored (language it was published in)
+                    if (item.getTitle().toLowerCase().contains(query)) {
+                        matchesSearch = true;
+                        break;
+                    }
+
+                    // 2. Cross-language search: check current translation in DB
+                    // (e.g. if workout has Greek title but user searches "incline")
+                    Exercise enEx = dbHandler.getExerciseByImageName(item.getImageName(), "en");
+                    if (enEx != null && enEx.getTitle().toLowerCase().contains(query)) {
+                        matchesSearch = true;
+                        break;
+                    }
+
+                    Exercise elEx = dbHandler.getExerciseByImageName(item.getImageName(), "el");
+                    if (elEx != null && elEx.getTitle().toLowerCase().contains(query)) {
+                        matchesSearch = true;
+                        break;
+                    }
+                }
+            }
+
+            if (matchesSearch) {
+                filteredWorkoutDocs.add(doc);
+            }
+        }
+
+        adapter.notifyDataSetChanged();
+        
+        if (filteredWorkoutDocs.isEmpty()) {
+            emptyText.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+        } else {
+            emptyText.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+        }
     }
 
     private void showDeleteConfirmation(DocumentSnapshot doc) {
@@ -124,10 +220,12 @@ public class OnlineFragment extends Fragment {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("online_workouts").document(doc.getId()).delete()
                 .addOnSuccessListener(aVoid -> {
+                    if (!isAdded()) return;
                     Toast.makeText(requireContext(), R.string.delete_success, Toast.LENGTH_SHORT).show();
                     loadOnlineWorkouts();
                 })
                 .addOnFailureListener(e -> {
+                    if (!isAdded()) return;
                     Toast.makeText(requireContext(), "Delete failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }

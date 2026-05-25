@@ -61,11 +61,7 @@ public class ProgramFragment extends Fragment {
         }, (workout, position) -> {
             showEditWorkoutDialog(workout, position);
         }, position -> {
-            workoutList.remove(position);
-            adapter.notifyItemRemoved(position);
-            adapter.notifyItemRangeChanged(position, workoutList.size());
-            ProgramManager.getInstance().saveProgram(requireContext());
-            updateEmptyState();
+            showDeleteWorkoutConfirmation(position);
         });
 
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -87,6 +83,21 @@ public class ProgramFragment extends Fragment {
             adapter.notifyDataSetChanged();
             updateEmptyState();
         }
+    }
+
+    private void showDeleteWorkoutConfirmation(int position) {
+        new AlertDialog.Builder(requireContext(), R.style.AlertDialogTheme)
+                .setTitle(R.string.delete)
+                .setMessage(R.string.delete_workout_confirmation)
+                .setPositiveButton(R.string.delete, (dialog, which) -> {
+                    workoutList.remove(position);
+                    adapter.notifyItemRemoved(position);
+                    adapter.notifyItemRangeChanged(position, workoutList.size());
+                    ProgramManager.getInstance().saveProgram(requireContext());
+                    updateEmptyState();
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
     }
 
     private void updateEmptyState() {

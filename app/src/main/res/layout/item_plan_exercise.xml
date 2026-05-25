@@ -32,33 +32,53 @@
                 android:src="@drawable/bicep_curl"
                 />
 
-            <TextView
-                android:id="@+id/plan_exercise_title"
+            <LinearLayout
+                android:id="@+id/text_layout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
                 android:layout_marginStart="12dp"
                 android:layout_marginEnd="8dp"
-                android:text="placeholder_text"
-                android:textColor="@color/white"
-                android:textAlignment="center"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/plan_exercise_delete_btn"
+                app:layout_constraintEnd_toStartOf="@id/plan_exercise_options_btn"
                 app:layout_constraintStart_toEndOf="@id/plan_exercise_image"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:id="@+id/plan_exercise_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="placeholder_text"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textAlignment="center" />
+
+                <TextView
+                    android:id="@+id/plan_exercise_stats"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="3 sets x 12 reps"
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="14sp"
+                    android:textAlignment="center"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
+            </LinearLayout>
 
 
             <ImageButton
-                android:id="@+id/plan_exercise_delete_btn"
-                android:src="@drawable/delete_button"
-                android:backgroundTint="@color/black"
-                android:scaleType="fitCenter"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
+                android:id="@+id/plan_exercise_options_btn"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@android:drawable/ic_menu_more"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-
-            />
+                app:tint="@color/white" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>

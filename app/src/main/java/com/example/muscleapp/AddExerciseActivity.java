@@ -107,8 +107,9 @@ public class AddExerciseActivity extends AppCompatActivity {
             return;
         }
 
-        // If no image selected, use placeholder
-        String finalImage = selectedImageUri.isEmpty() ? "ic_placeholder" : selectedImageUri;
+        // If no image selected, use a unique placeholder key to avoid DB collisions
+        String finalImage = selectedImageUri.isEmpty() ? 
+                "ic_placeholder_" + System.currentTimeMillis() : selectedImageUri;
 
         // Auto-translate logic: Saving the same English text for both language versions
         dbHandler.addExercise(title, desc, muscleGroup, finalImage, "en", tags);

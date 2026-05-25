@@ -1,6 +1,7 @@
 package com.example.muscleapp;
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,23 +9,28 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.graphics.Insets;
 import androidx.core.os.LocaleListCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class WorkoutDetailActivity extends AppCompatActivity {
@@ -82,15 +88,39 @@ public class WorkoutDetailActivity extends AppCompatActivity {
         emptyText = findViewById(R.id.workout_empty_text);
 
         adapter = new PlanExerciseAdapter(this, workout.getExercises(), position -> {
-            workout.getExercises().remove(position);
-            adapter.notifyItemRemoved(position);
-            adapter.notifyItemRangeChanged(position, workout.getExercises().size());
-            ProgramManager.getInstance().saveProgram(this);
-            updateEmptyState();
+            showSetRepsDialog(position);
+        }, position -> {
+            openExerciseDetail(position);
         });
         
         if (viewOnly) {
             adapter.setViewOnly(true);
+        } else {
+            // Enable drag and drop reordering for non-view-only mode
+            ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0) {
+                @Override
+                public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                    int fromPosition = viewHolder.getAbsoluteAdapterPosition();
+                    int toPosition = target.getAbsoluteAdapterPosition();
+                    
+                    Collections.swap(workout.getExercises(), fromPosition, toPosition);
+                    adapter.notifyItemMoved(fromPosition, toPosition);
+                    return true;
+                }
+
+                @Override
+                public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                    // Not needed
+                }
+
+                @Override
+                public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+                    super.clearView(recyclerView, viewHolder);
+                    // Save the new order when drag is finished
+                    ProgramManager.getInstance().saveProgram(WorkoutDetailActivity.this);
+                }
+            });
+            itemTouchHelper.attachToRecyclerView(recyclerView);
         }
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -103,6 +133,88 @@ public class WorkoutDetailActivity extends AppCompatActivity {
         } else {
             fab.setOnClickListener(v -> showAddExerciseDialog());
         }
+    }
+
+    private void openExerciseDetail(int position) {
+        ExerciseItem item = workout.getExercises().get(position);
+        Intent intent = new Intent(this, ExerciseDetailActivity.class);
+        intent.putExtra("EXERCISE_IMAGE", item.getImageName());
+        startActivity(intent);
+    }
+
+    private void showSetRepsDialog(int position) {
+        ExerciseItem item = workout.getExercises().get(position);
+        Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.dialog_set_reps);
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            dialog.getWindow().setLayout(
+                    (int) (getResources().getDisplayMetrics().widthPixels * 0.92),
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+            );
+        }
+
+        TextView titleTV = dialog.findViewById(R.id.dialog_title);
+        EditText etSets = dialog.findViewById(R.id.et_sets);
+        EditText etReps = dialog.findViewById(R.id.et_reps);
+        EditText etWeight = dialog.findViewById(R.id.et_weight);
+        Spinner spinnerUnit = dialog.findViewById(R.id.spinner_unit);
+        Button btnCancel = dialog.findViewById(R.id.btn_cancel);
+        Button btnSave = dialog.findViewById(R.id.btn_save);
+        Button btnDelete = dialog.findViewById(R.id.btn_delete_exercise_in_dialog);
+
+        // Dynamic localized title lookup
+        Exercise localized = dbHandler.getExerciseByImageName(item.getImageName(), getCurrentLang());
+        titleTV.setText(localized != null ? localized.getTitle() : item.getTitle());
+
+        if (item.getSets() > 0) etSets.setText(String.valueOf(item.getSets()));
+        if (item.getReps() > 0) etReps.setText(String.valueOf(item.getReps()));
+        if (item.getWeight() > 0) etWeight.setText(String.valueOf(item.getWeight()));
+
+        String[] units = {"kg", "lbs"};
+        ArrayAdapter<String> unitAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, units);
+        unitAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        spinnerUnit.setAdapter(unitAdapter);
+        if (item.getWeightUnit().equals("lbs")) spinnerUnit.setSelection(1);
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+        btnSave.setOnClickListener(v -> {
+            String setsStr = etSets.getText().toString().trim();
+            String repsStr = etReps.getText().toString().trim();
+            String weightStr = etWeight.getText().toString().trim();
+
+            int sets = setsStr.isEmpty() ? 0 : Integer.parseInt(setsStr);
+            int reps = repsStr.isEmpty() ? 0 : Integer.parseInt(repsStr);
+            float weight = weightStr.isEmpty() ? 0f : Float.parseFloat(weightStr);
+            String unit = units[spinnerUnit.getSelectedItemPosition()];
+
+            item.setSets(sets);
+            item.setReps(reps);
+            item.setWeight(weight);
+            item.setWeightUnit(unit);
+
+            adapter.notifyItemChanged(position);
+            ProgramManager.getInstance().saveProgram(this);
+            dialog.dismiss();
+        });
+
+        btnDelete.setOnClickListener(v -> {
+            new AlertDialog.Builder(this, R.style.AlertDialogTheme)
+                    .setTitle(R.string.delete)
+                    .setMessage(R.string.delete_exercise_confirmation)
+                    .setPositiveButton(R.string.delete, (d, which) -> {
+                        workout.getExercises().remove(position);
+                        adapter.notifyItemRemoved(position);
+                        adapter.notifyItemRangeChanged(position, workout.getExercises().size());
+                        ProgramManager.getInstance().saveProgram(this);
+                        updateEmptyState();
+                        dialog.dismiss();
+                    })
+                    .setNegativeButton(R.string.cancel, null)
+                    .show();
+        });
+
+        dialog.show();
     }
 
     private void showEditTitleDialog(TextView titleTV) {
@@ -176,7 +288,9 @@ public class WorkoutDetailActivity extends AppCompatActivity {
         }
 
         Spinner muscleSpinner = dialog.findViewById(R.id.dialog_muscle_spinner);
-        Spinner exerciseSpinner = dialog.findViewById(R.id.dialog_exercise_spinner);
+        ListView exerciseListView = dialog.findViewById(R.id.dialog_exercise_list);
+        Button btnSelectAll = dialog.findViewById(R.id.btn_select_all_exercises);
+        Button btnDeselectAll = dialog.findViewById(R.id.btn_deselect_all_exercises);
         Button cancelBtn = dialog.findViewById(R.id.dialog_cancel_btn);
         Button addBtn = dialog.findViewById(R.id.dialog_add_btn);
 
@@ -193,38 +307,56 @@ public class WorkoutDetailActivity extends AppCompatActivity {
                 exercisesRef[0] = dbHandler.getExercisesByMuscleGroup(MUSCLE_KEYS[pos], lang);
                 List<String> titles = new ArrayList<>();
                 for (Exercise e : exercisesRef[0]) titles.add(e.getTitle());
+                
                 ArrayAdapter<String> exAdapter = new ArrayAdapter<>(
                         WorkoutDetailActivity.this,
-                        R.layout.spinner_item, titles);
-                exAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
-                exerciseSpinner.setAdapter(exAdapter);
+                        R.layout.share_list_item, titles);
+                exerciseListView.setAdapter(exAdapter);
             }
             @Override public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
+        btnSelectAll.setOnClickListener(v -> {
+            for (int i = 0; i < exercisesRef[0].size(); i++) {
+                exerciseListView.setItemChecked(i, true);
+            }
+        });
+
+        btnDeselectAll.setOnClickListener(v -> {
+            for (int i = 0; i < exercisesRef[0].size(); i++) {
+                exerciseListView.setItemChecked(i, false);
+            }
         });
 
         muscleSpinner.setSelection(0);
         cancelBtn.setOnClickListener(v -> dialog.dismiss());
 
         addBtn.setOnClickListener(v -> {
-            int exPos = exerciseSpinner.getSelectedItemPosition();
-            if (exercisesRef[0] == null || exercisesRef[0].isEmpty() || exPos < 0) {
-                Toast.makeText(this, R.string.nothing_selected, Toast.LENGTH_SHORT).show();
-                return;
+            boolean anyAdded = false;
+            for (int i = 0; i < exercisesRef[0].size(); i++) {
+                if (exerciseListView.isItemChecked(i)) {
+                    Exercise chosen = exercisesRef[0].get(i);
+                    ExerciseItem item = new ExerciseItem(
+                            chosen.getTitle(),
+                            chosen.getDescription(),
+                            chosen.getMuscleGroup(),
+                            chosen.getImageName(),
+                            chosen.getTags(),
+                            0, 0, 0f, "kg"
+                    );
+                    workout.getExercises().add(item);
+                    anyAdded = true;
+                }
             }
-            Exercise chosen = exercisesRef[0].get(exPos);
-            ExerciseItem item = new ExerciseItem(
-                    chosen.getTitle(),
-                    chosen.getDescription(),
-                    chosen.getMuscleGroup(),
-                    chosen.getImageName(),
-                    chosen.getTags(),
-                    0, 0f
-            );
-            workout.getExercises().add(item);
-            adapter.notifyItemInserted(workout.getExercises().size() - 1);
-            ProgramManager.getInstance().saveProgram(this);
-            updateEmptyState();
-            dialog.dismiss();
+
+            if (!anyAdded) {
+                Toast.makeText(this, R.string.nothing_selected, Toast.LENGTH_SHORT).show();
+            } else {
+                adapter.notifyDataSetChanged();
+                ProgramManager.getInstance().saveProgram(this);
+                updateEmptyState();
+                dialog.dismiss();
+            }
         });
 
         dialog.show();

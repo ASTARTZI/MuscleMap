@@ -123,6 +123,9 @@ public class ExerciseDetailActivity extends AppCompatActivity {
                     imgV.setImageResource(R.drawable.ic_placeholder);
                 }
             }
+        } else {
+            Toast.makeText(this, "Exercise details not found", Toast.LENGTH_SHORT).show();
+            finish();
         }
     }
 
