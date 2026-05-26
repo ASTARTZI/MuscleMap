@@ -115,6 +115,10 @@ public class AddExerciseActivity extends AppCompatActivity {
         dbHandler.addExercise(title, desc, muscleGroup, finalImage, "en", tags);
         dbHandler.addExercise(title, desc, muscleGroup, finalImage, "el", tags);
 
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra("NEW_EXERCISE_IMAGE", finalImage);
+        setResult(RESULT_OK, resultIntent);
+
         Toast.makeText(this, R.string.exercise_added_success, Toast.LENGTH_SHORT).show();
         finish();
     }

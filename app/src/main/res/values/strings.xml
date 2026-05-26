@@ -99,4 +99,5 @@
     <string name="login_success_admin">Login Successful (Admin)</string>
     <string name="exercise_deleted">Exercise deleted</string>
     <string name="paste_code_hint">Paste program code here</string>
+    <string name="create_custom_exercise">+ Create Custom Exercise</string>
 </resources>

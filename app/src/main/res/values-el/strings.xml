@@ -99,4 +99,5 @@
     <string name="login_success_admin">Η σύνδεση ήταν επιτυχής (Admin)</string>
     <string name="exercise_deleted">Η άσκηση διαγράφηκε</string>
     <string name="paste_code_hint">Επικολλήστε τον κώδικα προγράμματος εδώ</string>
+    <string name="create_custom_exercise">+ Δημιουργία Νέας Άσκησης</string>
 </resources>

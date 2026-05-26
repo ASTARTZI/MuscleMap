@@ -15,6 +15,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -45,6 +47,32 @@ public class WorkoutDetailActivity extends AppCompatActivity {
     private static final String[] MUSCLE_KEYS = {
             "chest", "arm", "legs", "shoulders", "back", "abs"
     };
+
+    private final ActivityResultLauncher<Intent> addCustomExerciseLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    String newImageName = result.getData().getStringExtra("NEW_EXERCISE_IMAGE");
+                    if (newImageName != null) {
+                        Exercise chosen = dbHandler.getExerciseByImageName(newImageName, getCurrentLang());
+                        if (chosen != null) {
+                            ExerciseItem item = new ExerciseItem(
+                                    chosen.getTitle(),
+                                    chosen.getDescription(),
+                                    chosen.getMuscleGroup(),
+                                    chosen.getImageName(),
+                                    chosen.getTags(),
+                                    0, 0, 0f, "kg"
+                            );
+                            workout.getExercises().add(item);
+                            adapter.notifyDataSetChanged();
+                            ProgramManager.getInstance().saveProgram(this);
+                            updateEmptyState();
+                        }
+                    }
+                }
+            }
+    );
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,8 +165,10 @@ public class WorkoutDetailActivity extends AppCompatActivity {
 
     private void openExerciseDetail(int position) {
         ExerciseItem item = workout.getExercises().get(position);
+        boolean viewOnly = getIntent().getBooleanExtra("VIEW_ONLY", false);
         Intent intent = new Intent(this, ExerciseDetailActivity.class);
         intent.putExtra("EXERCISE_IMAGE", item.getImageName());
+        intent.putExtra("VIEW_ONLY", viewOnly);
         startActivity(intent);
     }
 
@@ -293,6 +323,15 @@ public class WorkoutDetailActivity extends AppCompatActivity {
         Button btnDeselectAll = dialog.findViewById(R.id.btn_deselect_all_exercises);
         Button cancelBtn = dialog.findViewById(R.id.dialog_cancel_btn);
         Button addBtn = dialog.findViewById(R.id.dialog_add_btn);
+
+        TextView customBtn = dialog.findViewById(R.id.btn_create_custom_exercise);
+        if (customBtn != null) {
+            customBtn.setOnClickListener(v -> {
+                dialog.dismiss();
+                Intent intent = new Intent(this, AddExerciseActivity.class);
+                addCustomExerciseLauncher.launch(intent);
+            });
+        }
 
         ArrayAdapter<String> muscleAdapter = new ArrayAdapter<>(
                 this, R.layout.spinner_item, buildMuscleLabels());

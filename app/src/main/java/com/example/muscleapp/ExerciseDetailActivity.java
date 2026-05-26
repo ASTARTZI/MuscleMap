@@ -78,7 +78,10 @@ public class ExerciseDetailActivity extends AppCompatActivity {
         if (!"el".equals(lang)) lang = "en";
 
         // Fetch the translated exercise from the database
-        Exercise exercise = dbHandler.getExerciseByImageName(imageName, lang);
+        boolean viewOnly = getIntent().getBooleanExtra("VIEW_ONLY", false);
+        Exercise exercise = viewOnly ? 
+                dbHandler.getExerciseByImageNameGlobal(imageName, lang) : 
+                dbHandler.getExerciseByImageName(imageName, lang);
 
         if (exercise != null) {
             titleTV.setText(exercise.getTitle());

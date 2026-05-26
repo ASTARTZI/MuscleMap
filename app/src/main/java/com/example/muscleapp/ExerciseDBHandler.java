@@ -5,11 +5,14 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
+import com.google.firebase.auth.FirebaseAuth;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class ExerciseDBHandler extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 30;
+    private static final int DATABASE_VERSION = 31;
     private static final String DATABASE_NAME = "exerciseDB.db";
     
     public static final String TABLE_EXERCISES = "exercises";
@@ -20,6 +23,7 @@ public class ExerciseDBHandler extends SQLiteOpenHelper {
     public static final String COLUMN_IMAGE_NAME = "image_name";
     public static final String COLUMN_LANGUAGE = "language";
     public static final String COLUMN_TAGS = "tags";
+    public static final String COLUMN_EXERCISE_USER_ID = "ex_user_id"; // Renamed to avoid confusion with TABLE_PROGRAMS
 
     public static final String TABLE_PROGRAMS = "user_programs";
     public static final String COLUMN_USER_ID = "user_id";
@@ -38,7 +42,8 @@ public class ExerciseDBHandler extends SQLiteOpenHelper {
                 + COLUMN_MUSCLE_GROUP + " TEXT,"
                 + COLUMN_IMAGE_NAME + " TEXT,"
                 + COLUMN_LANGUAGE + " TEXT,"
-                + COLUMN_TAGS + " TEXT" + ")");
+                + COLUMN_TAGS + " TEXT,"
+                + COLUMN_EXERCISE_USER_ID + " TEXT" + ")");
 
         db.execSQL("CREATE TABLE " + TABLE_PROGRAMS + "("
                 + COLUMN_USER_ID + " TEXT PRIMARY KEY,"
@@ -89,12 +94,26 @@ public class ExerciseDBHandler extends SQLiteOpenHelper {
     public List<Exercise> getExercisesByMuscleGroup(String muscleGroup, String lang) {
         List<Exercise> list = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
+        String currentUid = FirebaseAuth.getInstance().getCurrentUser() != null ? 
+                FirebaseAuth.getInstance().getCurrentUser().getUid() : "unknown";
+
         String selection = "(" + COLUMN_MUSCLE_GROUP + " = ? OR " +
                 COLUMN_MUSCLE_GROUP + " LIKE ? OR " +
                 COLUMN_MUSCLE_GROUP + " LIKE ? OR " +
                 COLUMN_MUSCLE_GROUP + " LIKE ?) AND " +
-                COLUMN_LANGUAGE + " = ?";
-        String[] selectionArgs = new String[]{muscleGroup, muscleGroup + ",%", "%," + muscleGroup, "%," + muscleGroup + ",%", lang};
+                COLUMN_LANGUAGE + " = ? AND (" +
+                COLUMN_EXERCISE_USER_ID + " = 'system' OR " +
+                COLUMN_EXERCISE_USER_ID + " = ?)";
+
+        String[] selectionArgs = new String[]{
+                muscleGroup, 
+                muscleGroup + ",%", 
+                "%," + muscleGroup, 
+                "%," + muscleGroup + ",%", 
+                lang, 
+                currentUid
+        };
+
         Cursor cursor = db.query(TABLE_EXERCISES, null, selection, selectionArgs, null, null, null);
         if (cursor.moveToFirst()) {
             do {
@@ -108,7 +127,32 @@ public class ExerciseDBHandler extends SQLiteOpenHelper {
 
     public Exercise getExerciseByImageName(String imageName, String lang) {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_EXERCISES, null, COLUMN_IMAGE_NAME + " = ? AND " + COLUMN_LANGUAGE + " = ?", new String[]{imageName, lang}, null, null, null);
+        String currentUid = FirebaseAuth.getInstance().getCurrentUser() != null ? 
+                FirebaseAuth.getInstance().getCurrentUser().getUid() : "unknown";
+
+        String selection = COLUMN_IMAGE_NAME + " = ? AND " + 
+                COLUMN_LANGUAGE + " = ? AND (" + 
+                COLUMN_EXERCISE_USER_ID + " = 'system' OR " + 
+                COLUMN_EXERCISE_USER_ID + " = ?)";
+        
+        String[] selectionArgs = new String[]{imageName, lang, currentUid};
+
+        Cursor cursor = db.query(TABLE_EXERCISES, null, selection, selectionArgs, null, null, null);
+        Exercise exercise = null;
+        if (cursor.moveToFirst()) {
+            exercise = new Exercise(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(6));
+        }
+        cursor.close();
+        db.close();
+        return exercise;
+    }
+
+    public Exercise getExerciseByImageNameGlobal(String imageName, String lang) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selection = COLUMN_IMAGE_NAME + " = ? AND " + COLUMN_LANGUAGE + " = ?";
+        String[] selectionArgs = new String[]{imageName, lang};
+
+        Cursor cursor = db.query(TABLE_EXERCISES, null, selection, selectionArgs, null, null, null);
         Exercise exercise = null;
         if (cursor.moveToFirst()) {
             exercise = new Exercise(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3), cursor.getString(4), cursor.getString(6));
@@ -120,6 +164,9 @@ public class ExerciseDBHandler extends SQLiteOpenHelper {
 
     public void addExercise(String title, String description, String muscleGroup, String imageName, String lang, String tags) {
         SQLiteDatabase db = this.getWritableDatabase();
+        String currentUid = FirebaseAuth.getInstance().getCurrentUser() != null ? 
+                FirebaseAuth.getInstance().getCurrentUser().getUid() : "unknown";
+
         ContentValues values = new ContentValues();
         values.put(COLUMN_TITLE, title);
         values.put(COLUMN_DESCRIPTION, description);
@@ -127,6 +174,7 @@ public class ExerciseDBHandler extends SQLiteOpenHelper {
         values.put(COLUMN_IMAGE_NAME, imageName);
         values.put(COLUMN_LANGUAGE, lang);
         values.put(COLUMN_TAGS, tags);
+        values.put(COLUMN_EXERCISE_USER_ID, currentUid);
         db.insert(TABLE_EXERCISES, null, values);
         db.close();
     }
@@ -299,6 +347,7 @@ public class ExerciseDBHandler extends SQLiteOpenHelper {
         values.put(COLUMN_IMAGE_NAME, imageName);
         values.put(COLUMN_LANGUAGE, lang);
         values.put(COLUMN_TAGS, tags);
+        values.put(COLUMN_EXERCISE_USER_ID, "system");
         db.insert(TABLE_EXERCISES, null, values);
     }
 }
