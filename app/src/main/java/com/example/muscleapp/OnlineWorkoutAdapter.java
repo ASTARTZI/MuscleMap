@@ -69,7 +69,7 @@ public class OnlineWorkoutAdapter extends RecyclerView.Adapter<OnlineWorkoutAdap
 
         // Visibility of delete button
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        boolean isAdmin = context.getSharedPreferences("MuscleAppPrefs", Context.MODE_PRIVATE)
+        boolean isAdmin = context.getSharedPreferences("MuscleMapPrefs", Context.MODE_PRIVATE)
                 .getBoolean("is_admin", false);
 
         if (currentUser != null && ((uploaderUid != null && uploaderUid.equals(currentUser.getUid())) || isAdmin)) {

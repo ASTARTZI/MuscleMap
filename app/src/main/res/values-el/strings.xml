@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MuscleApp</string>
+    <string name="app_name">MuscleMap</string>
     <string name="chest_button">ΣΤΗΘΟΣ</string>
     <string name="arm_button">ΧΕΡΙΑ</string>
     <string name="legs_button">ΠΟΔΙΑ</string>
@@ -94,4 +94,9 @@
     <string name="repetitions">Επαναλήψεις</string>
     <string name="weight">Βάρος</string>
     <string name="stats_format">%1$d σετ x %2$d επαν. @ %3$.1f %4$s</string>
+    <string name="fill_fields_error">Παρακαλώ συμπληρώστε όλα τα πεδία</string>
+    <string name="login_success">Η σύνδεση ήταν επιτυχής</string>
+    <string name="login_success_admin">Η σύνδεση ήταν επιτυχής (Admin)</string>
+    <string name="exercise_deleted">Η άσκηση διαγράφηκε</string>
+    <string name="paste_code_hint">Επικολλήστε τον κώδικα προγράμματος εδώ</string>
 </resources>

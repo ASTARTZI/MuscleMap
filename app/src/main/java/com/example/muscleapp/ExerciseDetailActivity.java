@@ -45,13 +45,13 @@ public class ExerciseDetailActivity extends AppCompatActivity {
         // Setup Delete button for Admin
         Button btnDelete = findViewById(R.id.btn_delete_exercise);
         if (btnDelete != null) {
-            boolean isAdmin = getSharedPreferences("MuscleAppPrefs", MODE_PRIVATE)
+            boolean isAdmin = getSharedPreferences("MuscleMapPrefs", MODE_PRIVATE)
                     .getBoolean("is_admin", false);
             if (isAdmin) {
                 btnDelete.setVisibility(View.VISIBLE);
                 btnDelete.setOnClickListener(v -> {
                     dbHandler.deleteExerciseByImageName(imageName);
-                    Toast.makeText(this, "Exercise deleted", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.exercise_deleted, Toast.LENGTH_SHORT).show();
                     finish(); // Go back to the list
                 });
             } else {

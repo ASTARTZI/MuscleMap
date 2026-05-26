@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ProgramManager {
-    private static final String BASE_PREF_NAME = "MuscleAppProgram_";
+    private static final String BASE_PREF_NAME = "MuscleMapProgram_";
     private static final String KEY_PROGRAM = "program_json";
     private static ProgramManager instance;
     private List<Workout> workouts;

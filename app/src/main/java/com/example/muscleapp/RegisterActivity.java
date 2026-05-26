@@ -110,7 +110,7 @@ public class RegisterActivity extends AppCompatActivity {
                 db.collection("users").document(mAuth.getCurrentUser().getUid()).set(user);
 
                 // Not admin
-                getSharedPreferences("MuscleAppPrefs", MODE_PRIVATE)
+                getSharedPreferences("MuscleMapPrefs", MODE_PRIVATE)
                         .edit()
                         .putBoolean("is_admin", false)
                         .apply();

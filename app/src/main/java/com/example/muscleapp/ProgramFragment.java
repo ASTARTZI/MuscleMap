@@ -346,7 +346,7 @@ public class ProgramFragment extends Fragment {
 
     private void showImportDialog() {
         EditText input = new EditText(requireContext());
-        input.setHint("Paste program code here");
+        input.setHint(R.string.paste_code_hint);
         input.setTextColor(0xFFFFFFFF);
         input.setHintTextColor(0xFFAAAAAA);
         input.setBackgroundColor(0xFF2C2C2C);

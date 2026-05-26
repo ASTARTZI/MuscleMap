@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MuscleApp</string>
+    <string name="app_name">MuscleMap</string>
     <string name="chest_button">CHEST</string>
     <string name="arm_button">ARM</string>
     <string name="legs_button">LEGS</string>
@@ -94,4 +94,9 @@
     <string name="repetitions">Repetitions</string>
     <string name="weight">Weight</string>
     <string name="stats_format">%1$d sets x %2$d reps @ %3$.1f %4$s</string>
+    <string name="fill_fields_error">Please fill in all fields</string>
+    <string name="login_success">Login Successful</string>
+    <string name="login_success_admin">Login Successful (Admin)</string>
+    <string name="exercise_deleted">Exercise deleted</string>
+    <string name="paste_code_hint">Paste program code here</string>
 </resources>

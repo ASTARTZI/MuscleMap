@@ -89,7 +89,7 @@ public class LoginActivity extends AppCompatActivity {
         String password = loginpassword.getText().toString().trim();
 
         if (email.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.fill_fields_error, Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -105,12 +105,12 @@ public class LoginActivity extends AppCompatActivity {
                 db.collection("users").document(mAuth.getCurrentUser().getUid()).set(user);
 
                 // Save admin status in SharedPreferences
-                getSharedPreferences("MuscleAppPrefs", MODE_PRIVATE)
+                getSharedPreferences("MuscleMapPrefs", MODE_PRIVATE)
                         .edit()
                         .putBoolean("is_admin", isAdmin)
                         .apply();
 
-                Toast.makeText(this, "Login Successful" + (isAdmin ? " (Admin)" : ""), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, isAdmin ? R.string.login_success_admin : R.string.login_success, Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 startActivity(intent);
                 finish();
@@ -131,12 +131,12 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         // Save admin status in SharedPreferences
-        getSharedPreferences("MuscleAppPrefs", MODE_PRIVATE)
+        getSharedPreferences("MuscleMapPrefs", MODE_PRIVATE)
                 .edit()
                 .putBoolean("is_admin", isAdmin)
                 .apply();
 
-        Toast.makeText(this, "Login Successful" + (isAdmin ? " (Admin)" : ""), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, isAdmin ? R.string.login_success_admin : R.string.login_success, Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
         startActivity(intent);
         finish();

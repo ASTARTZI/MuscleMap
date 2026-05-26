@@ -45,7 +45,7 @@ public class MusclesFragment extends Fragment {
         // Add exercise button (Admin only)
         View addBtn = view.findViewById(R.id.add_exercise_button);
         if (addBtn != null) {
-            boolean isAdmin = view.getContext().getSharedPreferences("MuscleAppPrefs", Context.MODE_PRIVATE)
+            boolean isAdmin = view.getContext().getSharedPreferences("MuscleMapPrefs", Context.MODE_PRIVATE)
                     .getBoolean("is_admin", false);
             if (isAdmin) {
                 addBtn.setVisibility(View.VISIBLE);
@@ -66,7 +66,7 @@ public class MusclesFragment extends Fragment {
                 ProgramManager.getInstance().clear();
                 
                 if (getActivity() != null) {
-                    getActivity().getSharedPreferences("MuscleAppPrefs", Context.MODE_PRIVATE)
+                    getActivity().getSharedPreferences("MuscleMapPrefs", Context.MODE_PRIVATE)
                             .edit()
                             .putBoolean("is_admin", false)
                             .apply();
