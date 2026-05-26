@@ -90,17 +90,26 @@ public class PlanExerciseAdapter extends RecyclerView.Adapter<PlanExerciseAdapte
             holder.statsTV.setVisibility(View.GONE);
         }
 
-        int resId = context.getResources().getIdentifier(
-                item.getImageName(), "drawable",context.getPackageName());
-
-        if (resId != 0) {
+        String img = item.getImageName();
+        if (img != null && (img.startsWith("content://") || img.startsWith("file://"))) {
             Glide.with(context)
-                    .load(resId)
+                    .load(img)
                     .placeholder(R.drawable.ic_placeholder)
                     .fitCenter()
                     .into(holder.imageView);
         } else {
-            holder.imageView.setImageResource(R.drawable.ic_placeholder);
+            int resId = context.getResources().getIdentifier(
+                    img, "drawable", context.getPackageName());
+
+            if (resId != 0) {
+                Glide.with(context)
+                        .load(resId)
+                        .placeholder(R.drawable.ic_placeholder)
+                        .fitCenter()
+                        .into(holder.imageView);
+            } else {
+                holder.imageView.setImageResource(R.drawable.ic_placeholder);
+            }
         }
 
         if (isViewOnly) {
