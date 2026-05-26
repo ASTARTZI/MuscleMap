@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ExerciseDBHandler extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 31;
+    private static final int DATABASE_VERSION = 33;
     private static final String DATABASE_NAME = "exerciseDB.db";
     
     public static final String TABLE_EXERCISES = "exercises";
