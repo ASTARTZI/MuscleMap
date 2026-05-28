@@ -7,7 +7,6 @@
     android:layout_height="match_parent"
     android:background="@color/black">
 
-    <!-- Combined top bar (language + logout) – from Version 2 -->
     <LinearLayout
         android:id="@+id/lang_layout"
         android:layout_width="0dp"
@@ -61,7 +60,7 @@
             app:backgroundTint="@color/red" />
     </LinearLayout>
 
-    <!-- Body image (responsive scaling) – from Version 2 -->
+    <!-- Body image -->
     <ImageView
         android:id="@+id/imageView3"
         android:layout_width="wrap_content"

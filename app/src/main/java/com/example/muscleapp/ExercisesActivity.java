@@ -3,7 +3,6 @@ package com.example.muscleapp;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.AutoCompleteTextView;
 import androidx.activity.EdgeToEdge;
@@ -59,25 +58,13 @@ public class ExercisesActivity extends AppCompatActivity {
             currentMuscleGroup = "chest";   // fallback
         }
 
-        // Setup language buttons (from Version 2) with list refresh
-        View btnEn = findViewById(R.id.btn_en);
-        View btnEl = findViewById(R.id.btn_el);
-        if (btnEn != null) btnEn.setOnClickListener(v -> {
-            setLocale("en");
-            reloadExercises();
-        });
-        if (btnEl != null) btnEl.setOnClickListener(v -> {
-            setLocale("el");
-            reloadExercises();
-        });
-
         // Initial load of exercises
         reloadExercises();
 
         adapter = new ExerciseAdapter(this, filteredList);
         recyclerView.setAdapter(adapter);
 
-        // Setup Search (from Version 1)
+        // Setup Search
         SearchView searchView = findViewById(R.id.search_view);
         if (searchView != null) {
             AutoCompleteTextView searchEditText = searchView.findViewById(androidx.appcompat.R.id.search_src_text);
@@ -109,7 +96,7 @@ public class ExercisesActivity extends AppCompatActivity {
             });
         }
 
-        // Setup Filter (from Version 1)
+        // Setup Filter
         ImageButton btnFilter = findViewById(R.id.btn_filter);
         if (btnFilter != null) {
             btnFilter.setOnClickListener(v -> showFilterDialog());

@@ -120,25 +120,4 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private void loginSuccess(String email, boolean isAdmin) {
-        // Sync user to Firestore
-        if (mAuth.getCurrentUser() != null) {
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
-            Map<String, Object> user = new HashMap<>();
-            user.put("email", email);
-            user.put("uid", mAuth.getCurrentUser().getUid());
-            db.collection("users").document(mAuth.getCurrentUser().getUid()).set(user);
-        }
-
-        // Save admin status in SharedPreferences
-        getSharedPreferences("MuscleMapPrefs", MODE_PRIVATE)
-                .edit()
-                .putBoolean("is_admin", isAdmin)
-                .apply();
-
-        Toast.makeText(this, isAdmin ? R.string.login_success_admin : R.string.login_success, Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-        startActivity(intent);
-        finish();
-    }
 }
